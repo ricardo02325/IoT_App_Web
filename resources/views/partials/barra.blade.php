@@ -5,14 +5,14 @@
 		<span class="text">Panel de administrador</span>
 	</a>
 	<ul class="side-menu top">
-		<li class="active">
-			<a href="#">
+		<li class="{{ request()->routeIs('inicio') ? 'active' : '' }}">
+			<a href="{{ route('inicio') }}">
 				<i class='bx bxs-dashboard'></i>
 				<span class="text">Dashboard</span>
 			</a>
 		</li>
-		<li>
-			<a href="#">
+		<li class="{{ request()->routeIs('salones') ? 'active' : '' }}">
+			<a href="{{ route('salones') }}">
 				<i class='bx bxs-shopping-bag-alt'></i>
 				<span class="text">Salones</span>
 			</a>

@@ -2,24 +2,28 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Sensor extends Model
 {
-    use HasFactory;
-
-    protected $primaryKey = 'id_sensor';
     protected $table = 'sensores';
-    protected $fillable = ['id_tipo_sensor', 'id_salon', 'descripcion'];
+    protected $primaryKey = 'id_sensor';
+    public $timestamps = false;
 
     public function salon()
     {
-        return $this->belongsTo(Salon::class, 'id_salon');
+        return $this->belongsTo(Salon::class, 'id_salon', 'id_salon');
     }
 
+    // Relación con lecturas
     public function lecturas()
     {
-        return $this->hasMany(Lectura::class, 'id_sensor');
+        return $this->hasMany(Lectura::class, 'id_sensor', 'id_sensor');
+    }
+
+    // Última lectura
+    public function ultimaLectura()
+    {
+        return $this->hasOne(Lectura::class, 'id_sensor', 'id_sensor')->latestOfMany('fecha_hora');
     }
 }

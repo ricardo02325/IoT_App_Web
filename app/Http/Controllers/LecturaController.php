@@ -2,27 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Lectura;
-use App\Models\Usuario;
 use App\Models\Salon;
 
 class LecturaController extends Controller
 {
-    public function index()
-    {
-        $lecturas = Lectura::orderBy('fecha_hora', 'desc')->get();
-        $valorMaximo = $lecturas->max('valor');
-
-        $alumnos = Usuario::alumnos()->get();
-        $totalAlumnos = $alumnos->count();
-        $totalLecturas = $lecturas->count();
-
-        return view('index', compact('lecturas', 'valorMaximo', 'alumnos', 'totalAlumnos', 'totalLecturas'));
-    }
-
     public function salones()
     {
-        $salones = Salon::with('alumnos', 'sensores')->get();
-        return view('salones.index', compact('salones'));
+        // Traemos todos los salones con sus sensores y últimas lecturas
+        $salones = Salon::with(['sensores.lecturas' => function($q) {
+            $q->latest('fecha_hora')->limit(1);
+        }])->get();
+
+        return view('salones.salones', compact('salones'));
     }
 }
