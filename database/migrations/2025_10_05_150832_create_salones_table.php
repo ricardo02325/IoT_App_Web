@@ -5,16 +5,18 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
-    public function up(): void {
+    public function up(): void
+    {
         Schema::create('salones', function (Blueprint $table) {
             $table->id('id_salon');
-            $table->string('nombre', 50);
+            $table->string('nombre', 50)->unique();
             $table->string('ubicacion', 100)->nullable();
-            $table->tinyInteger('capacidad')->unsigned();
+            $table->tinyInteger('capacidad')->unsigned()->default(0);
         });
     }
 
-    public function down(): void {
+    public function down(): void
+    {
         Schema::dropIfExists('salones');
     }
 };

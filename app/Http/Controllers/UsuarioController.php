@@ -1,28 +1,20 @@
 <?php
-
-namespace App\Http\Controllers;
-
-use App\Models\Lectura;
 use App\Models\Usuario;
-use App\Models\Salon;
+use App\Http\Controllers\Controller;
 
 class LecturaController extends Controller
 {
     public function index()
     {
-        $lecturas = Lectura::orderBy('fecha_hora', 'desc')->get();
+        $lecturas = \App\Models\Lectura::orderBy('fecha_hora', 'desc')->get();
         $valorMaximo = $lecturas->max('valor');
 
+        // 🔹 Obtener usuarios con rol "alumno"
         $alumnos = Usuario::alumnos()->get();
         $totalAlumnos = $alumnos->count();
+
         $totalLecturas = $lecturas->count();
 
         return view('index', compact('lecturas', 'valorMaximo', 'alumnos', 'totalAlumnos', 'totalLecturas'));
-    }
-
-    public function salones()
-    {
-        $salones = Salon::with('alumnos', 'sensores')->get();
-        return view('salones.index', compact('salones'));
     }
 }

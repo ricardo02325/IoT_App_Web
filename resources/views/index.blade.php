@@ -3,5 +3,5 @@
 @section('title', 'Inicio')
 
 @section('content')
-    @include('salones.salones')
+    @include('dashboard.dashboard')
 @endsection

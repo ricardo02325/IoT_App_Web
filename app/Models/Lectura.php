@@ -9,14 +9,12 @@ class Lectura extends Model
 {
     use HasFactory;
 
-    // Nombre de la tabla
+    protected $primaryKey = 'id_lectura';
     protected $table = 'lecturas';
+    protected $fillable = ['id_sensor', 'valor', 'fecha_hora'];
 
-    // Si no tienes created_at / updated_at
-    public $timestamps = false;
-
-    // Columnas que se pueden llenar masivamente (opcional)
-    protected $fillable = [
-        'id', 'sensor', 'valor', 'fecha_hora' // ajusta según tus columnas
-    ];
+    public function sensor()
+    {
+        return $this->belongsTo(Sensor::class, 'id_sensor');
+    }
 }
