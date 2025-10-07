@@ -49,57 +49,66 @@
 				<table>
 					<thead>
 						<tr>
-							<th>User</th>
-							<th>Date Order</th>
-							<th>Status</th>
+							<th>Título</th>
+							<th>Descripción</th>
+							<th>Salón</th>
+							<th>Última Lectura</th>
+							<th>Estado</th>
+							<th>Fecha</th>
 						</tr>
 					</thead>
 					<tbody>
-						<tr>
-							<td>
-								<img src="{{ asset('img/people.png') }}">
-								<p>John Doe</p>
-							</td>
-							<td>01-10-2021</td>
-							<td><span class="status completed">Completed</span></td>
-						</tr>
-						<tr>
-							<td>
-								<img src="{{ asset('img/people.png') }}">
-								<p>John Doe</p>
-							</td>
-							<td>01-10-2021</td>
-							<td><span class="status pending">Pending</span></td>
-						</tr>
-						<tr>
-							<td>
-								<img src="{{ asset('img/people.png') }}">
-								<p>John Doe</p>
-							</td>
-							<td>01-10-2021</td>
-							<td><span class="status process">Process</span></td>
-						</tr>
+						@forelse($reportes as $reporte)
+							<tr>
+								<td>{{ $reporte->titulo }}</td>
+								<td>{{ $reporte->descripcion }}</td>
+								<td>{{ $reporte->salon->nombre ?? 'N/A' }}</td>
+								<td>
+									@if($reporte->salon && $reporte->salon->sensores)
+										@foreach($reporte->salon->sensores as $sensor)
+											{{ ucfirst($sensor->tipo) }}:
+											{{ $sensor->lecturas->first()->valor ?? 'N/A' }}
+											<br>
+										@endforeach
+									@else
+										N/A
+									@endif
+								</td>
+								<td>
+									<span
+										class="status 
+								{{ $reporte->estatus == 'completado' ? 'completed' : ($reporte->estatus == 'pendiente' ? 'pending' : 'process') }}">
+										{{ ucfirst($reporte->estatus) }}
+									</span>
+								</td>
+								<td>{{ $reporte->created_at }}</td>
+							</tr>
+						@empty
+							<tr>
+								<td colspan="6" class="text-center">No hay reportes disponibles</td>
+							</tr>
+						@endforelse
 					</tbody>
 				</table>
 			</div>
 
 			<!-- <div class="todo">
-					<div class="head">
-						<h3>Todos</h3>
-						<i class='bx bx-plus'></i>
-						<i class='bx bx-filter'></i>
-					</div>
-					<ul class="todo-list">
-						<li class="completed">
-							<p>Todo List</p>
-							<i class='bx bx-dots-vertical-rounded'></i>
-						</li>
-						<li class="not-completed">
-							<p>Todo List</p>
-							<i class='bx bx-dots-vertical-rounded'></i>
-						</li>
-					</ul>
-				</div> -->
+							<div class="head">
+								<h3>Todos</h3>
+								<i class='bx bx-plus'></i>
+								<i class='bx bx-filter'></i>
+							</div>
+							<ul class="todo-list">
+								<li class="completed">
+									<p>Todo List</p>
+									<i class='bx bx-dots-vertical-rounded'></i>
+								</li>
+								<li class="not-completed">
+									<p>Todo List</p>
+									<i class='bx bx-dots-vertical-rounded'></i>
+								</li>
+							</ul>
+						</div> -->
 		</div>
 	</main>
 	<!-- /MAIN -->
