@@ -1,70 +1,58 @@
 @extends('layouts.app')
 
-@section('title', 'Salones')
+@section('title', 'FIE - Mapa Principal')
+
+@push('css')
+<link rel="stylesheet" href="{{ asset('css/salones.css') }}">
+@endpush
+
+@push('scripts')
+<script src="{{ asset('js/script.js') }}" defer></script>
+@endpush
 
 @section('content')
-    <!-- MAIN -->
-    <main>
-        <div class="head-title">
-            <div class="left">
-                <h1>Salones</h1>
-            </div>
-            <a href="#" class="btn-download">
-                <i class='bx bxs-cloud-download'></i>
-                <span class="text">Descargar PDF</span>
-            </a>
-        </div>
+<main class="body-seccion13">
+    <img id="diagrama13" src="{{ asset('imgs/FIE.png') }}" alt="Mapa de la Facultad de Ingeniería Eléctrica">
 
-        <div class="table-data">
-            <div class="order">
-                <div class="head">
-                    <h3>Salones</h3>
-                    <i class='bx bx-search'></i>
-                    <i class='bx bx-filter'></i>
-                </div>
+    <!-- Marcadores interactivos -->
+    <div class="circle13">
+        <span class="tooltip-text13">Laboratorio de Sistemas Eléctricos de Potencia (LSE)</span>
+    </div>
 
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Salón</th>
-                            <th>Ubicación</th>
-                            <th>Capacidad</th>
-                            <th>Temperatura (°C)</th>
-                            <th>Humedad (%)</th>
-                            <th>Luminosidad (lux)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($salones as $salon)
-                                <tr>
-                                    <td>{{ $salon->nombre }}</td>
-                                    <td>{{ $salon->ubicacion }}</td>
-                                    <td>{{ $salon->capacidad }}</td>
-                                    <td>
-                                        @php
-                                            $temp = $salon->sensores->firstWhere('tipo', 'temperatura');
-                                        @endphp
-                                        {{ $temp->ultimaLectura->valor ?? 'N/A' }}
-                                    </td>
-                                    <td>
-                                        @php
-                                            $hum = $salon->sensores->firstWhere('tipo', 'humedad');
-                                        @endphp
-                                        {{ $hum->ultimaLectura->valor ?? 'N/A' }}
-                                    </td>
-                                    <td>
-                                        @php
-                                            $lum = $salon->sensores->firstWhere('tipo', 'luminosidad');
-                                        @endphp
-                                        {{ $lum->ultimaLectura->valor ?? 'N/A' }}
-                                    </td>
-                                </tr>
-                            @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </main>
-    <!-- /MAIN -->
-    </section> {{-- cierre de <section id="content"> --}}
+    <div class="circle23">
+        <span class="tooltip-text13">Laboratorio de Electricidad y Magnetismo (LEM)</span>
+    </div>
+
+    <div class="circle33">
+        <span class="tooltip-text13">Laboratorio de Internet de las Cosas (LIOT)</span>
+    </div>
+
+    <div class="circle43">
+        <span class="tooltip-text13">Dirección (D)</span>
+    </div>
+
+    <div class="circle53">
+        <span class="tooltip-text13">Laboratorio de Mecánica (LM)</span>
+    </div>
+
+    <div class="circle63">
+        <span class="tooltip-text13">Aulas 1 (A1)</span>
+    </div>
+
+    <div class="circle73">
+        <span class="tooltip-text13">Aulas 2 (A2)</span>
+    </div>
+
+    <div class="circle83">
+        <span class="tooltip-text13">Aulas 3 (A3)</span>
+    </div>
+
+    <div class="circle93">
+        <span class="tooltip-text13">Laboratorio de Electrónica (LE)</span>
+    </div>
+
+    <div class="circle103">
+        <span class="tooltip-text13">Laboratorio de Instrumentación y Control (LIC)</span>
+    </div>
+</main>
 @endsection
