@@ -1,0 +1,179 @@
+/* Importa una fuente similar a la del ejemplo */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+:root {
+    /* Define variables de color para fácil mantenimiento */
+    /* ---- CAMBIO 1: Opacidad reducida para un mejor efecto cristal ---- */
+    --primary-glass-color: rgba(255, 255, 255, 0.80); /* Fondo del vidrio */
+    --border-glass-color: rgba(255, 255, 255, 0.90); /* Borde del vidrio ligeramente más visible */
+    --text-color-light: #333333;
+    --text-color-dark:  #555555;
+    --button-bg-color: rgba(255, 255, 255, 0.15); /* Fondo del botón */
+    --button-hover-bg-color: rgba(255, 255, 255, 0.25);
+    --link-color:#000000; /* Color de los enlaces */
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    overflow: hidden;
+    background-image: url('../images/d.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+
+.login-container {
+    padding: 20px;
+}
+
+.login-box {
+    /* Estilo Glassmorphism */
+   
+    /* ---- CAMBIO 2: Desenfoque aumentado para mejorar legibilidad ---- */
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid var(--border-glass-color);
+    border-radius: 20px; /* Bordes suaves */
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2); /* Sombra visible */
+    padding:  120px 65px 90px; 
+    width: 100%;
+    max-width: 650px; /* Ancho ajustado al ejemplo */
+    text-align: center;
+    color: var(--text-color-light); /* Texto claro general */
+    position: relative;
+}
+
+/* Título "Login" en la parte superior del cuadro */
+.login-title {
+    position: absolute;
+    top: -0px; /* Para que sobresalga un poco */
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--primary-glass-color); /* Fondo translúcido */
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--border-glass-color);
+    border-radius: 15px;
+    padding: 17px 40px;
+    font-size: 35px;
+    font-weight: 600;
+    color: #3a3a3a;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    white-space: nowrap; /* Evita que el texto se rompa */
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 25px;
+    background: rgba(255, 255, 255, 0.1); /* Fondo translúcido para los inputs */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    padding: 10px 15px;
+    transition: all 0.3s ease;
+}
+
+.input-group:focus-within {
+    border-color: rgba(255, 255, 255, 0.6);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.3); /* Brillo al enfocar */
+}
+
+.input-group input {
+    flex-grow: 1;
+    border: none;
+    outline: none;
+    background-color: transparent;
+    color: #ffffff; /* Texto blanco en el input */
+    font-size: 20px;
+    padding: 10px 0; /* Ajuste vertical */
+}
+
+.input-group input::placeholder {
+    color: #cccccc; /* Prueba con este gris claro */
+}
+
+.input-group .icon {
+    color: var(--text-color-dark); /* Iconos grises */
+    margin-left: 15px; /* Icono a la derecha del input */
+    font-size: 28px;
+}
+
+.options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    font-size: 18px;
+    color:  #ffffff;
+}
+
+.options label {
+    display: flex;
+    align-items: center;
+}
+
+.options input[type="checkbox"] {
+    margin-right: 8px;
+    height: 16px;
+    width: 16px;
+    background: transparent; /* Fondo transparente del checkbox */
+    border: 1px solid var(--text-color-dark); /* Borde del checkbox */
+    accent-color: var(--link-color); /* Color del "checked" */
+    cursor: pointer;
+}
+
+.options a {
+    color:  #ffffff; 
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.options a:hover {
+    color: #f0f0f0;
+    text-decoration: underline;
+}
+
+.login-button {
+    width: 100%;
+    padding: 15px;
+    background: var(--button-bg-color); /* Fondo de botón translúcido */
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    color: #ffffff;
+    font-size: 22px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+}
+
+.login-button:hover {
+    background-color: var(--button-hover-bg-color);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+}
+
+.register-text {
+    margin-top: 30px;
+    font-size: 14px;
+    color: var(--text-color-dark);
+}
+
+.register-text a {
+    color: var(--link-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.register-text a:hover {
+    text-decoration: underline;
+}
+
+.toggle-password {
+    cursor: pointer;
+}

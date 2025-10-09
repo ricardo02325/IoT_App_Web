@@ -25,12 +25,17 @@
 		</li>
 	</ul>
 	<ul class="side-menu">
-		<li>
-			<a href="#" class="logout">
-				<i class='bx bxs-log-out-circle'></i>
-				<span class="text">Logout</span>
-			</a>
-		</li>
+	<li>
+    <a href="{{ route('logout') }}" class="logout" 
+       onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+        <i class='bx bxs-log-out-circle'></i>
+        <span class="text">Logout</span>
+    </a>
+</li>
+
+<form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+    @csrf
+</form>
 	</ul>
 </section>
 <!-- /SIDEBAR -->
