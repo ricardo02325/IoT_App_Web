@@ -1,6 +1,6 @@
 /* Contenedor principal de la sección */
 .body-seccion13 {
-    position: relative; /* Mantiene los elementos posicionados dentro de este contenedor */
+    position: relative;
     perspective: 1000px;
     margin: 0px;
     display: flex;
@@ -21,18 +21,18 @@
     width: 1200px;
 }
 
-/* --- Estilos para los puntos/círculos en el mapa --- */
+/* --- Estilos para los puntos/círculos en el mapa (sin animación) --- */
 
 /* lse */
 .circle13 {
     position: absolute;
     width: 20px;
     height: 20px;
-    top: 310px;
-    left: 310px;
+    top: 160px;
+    left: 280px;
     background-color: red;
     border-radius: 50%;
-    animation: blink13 3s infinite;
+    /* Animación eliminada */
 }
 
 /* lem */
@@ -40,11 +40,10 @@
     position: absolute;
     width: 20px;
     height: 20px;
-    top: 250px;
-    left: 360px;
+    top: 150px;
+    left: 460px;
     background-color: red;
     border-radius: 50%;
-    animation: blink13 3s infinite;
 }
 
 /* liot */
@@ -52,11 +51,10 @@
     position: absolute;
     width: 20px;
     height: 20px;
-    top: 250px;
+    top: 150px;
     left: 848px;
     background-color: red;
     border-radius: 50%;
-    animation: blink13 3s infinite;
 }
 
 /* d */
@@ -64,11 +62,10 @@
     position: absolute;
     width: 20px;
     height: 20px;
-    top: 148px;
-    left: 500px;
+    top: 8px;
+    left: 600px;
     background-color: red;
     border-radius: 50%;
-    animation: blink13 3s infinite;
 }
 
 /* lm */
@@ -76,11 +73,10 @@
     position: absolute;
     width: 20px;
     height: 20px;
-    top: 387px;
-    left: 268px;
+    top: 287px;
+    left: 198px;
     background-color: red;
     border-radius: 50%;
-    animation: blink13 3s infinite;
 }
 
 /* a1 */
@@ -88,11 +84,10 @@
     position: absolute;
     width: 20px;
     height: 20px;
-    top: 370px;
-    left: 600px;
+    top: 300px;
+    left: 650px;
     background-color: red;
     border-radius: 50%;
-    animation: blink13 3s infinite;
 }
 
 /* a2 */
@@ -100,11 +95,10 @@
     position: absolute;
     width: 20px;
     height: 20px;
-    top: 380px;
+    top: 260px;
     left: 850px;
     background-color: red;
     border-radius: 50%;
-    animation: blink13 3s infinite;
 }
 
 /* a3 */
@@ -112,11 +106,10 @@
     position: absolute;
     width: 20px;
     height: 20px;
-    top: 497px;
+    top: 367px;
     left: 850px;
     background-color: red;
     border-radius: 50%;
-    animation: blink13 3s infinite;
 }
 
 /* le */
@@ -124,11 +117,10 @@
     position: absolute;
     width: 20px;
     height: 20px;
-    top: 250px;
+    top: 150px;
     left: 587px;
     background-color: red;
     border-radius: 50%;
-    animation: blink13 3s infinite;
 }
 
 /* lic */
@@ -136,23 +128,13 @@
     position: absolute;
     width: 20px;
     height: 20px;
-    top: 250px;
-    left: 650px;
+    top: 150px;
+    left: 670px;
     background-color: red;
     border-radius: 50%;
-    animation: blink13 3s infinite;
 }
 
-/* Animación de parpadeo para los círculos */
-@keyframes blink13 {
-    0%, 100% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0;
-    }
-}
-
+/* (La animación blink13 puede eliminarse completamente ya que no se usa) */
 
 /* --- Estilos del tooltip (mensaje emergente) --- */
 .tooltip-text13 {

@@ -1,133 +1,68 @@
-// Selección de elementos HTML
-var $Temp = $('#Temperatura');
-var $Hum  = $('#Humedad');
+// --- Elementos del DOM ---
+const liveTemp = document.getElementById("live-temp");
+const liveHum = document.getElementById("live-hum");
+const liveLux = document.getElementById("live-lux");
+const liveFan = document.getElementById("live-fan");
+const slider = document.getElementById("desired-temp-slider");
+const desiredTempValue = document.getElementById("desired-temp-value");
 
-// Particle.io
+// --- Configuración Particle ---
+const DEVICE_ID = "29002b000b47313037363132";
+const USERNAME = "rgregorio0@ucol.mx";
+const PASSWORD = "Pacofran25?";
+
+let token = null;
+let lastTemp = undefined;
+
+// --- Inicializar Particle ---
 var particle = new Particle();
-var token;
 
-// Datos para la gráfica y tabla
-let dataHistory = [];
-let currentPage = 1;
-const rowsPerPage = 5;
+// --- Login ---
+particle.login({ username: USERNAME, password: PASSWORD }).then(
+    function (data) {
+        token = data.body.access_token;
+        console.log("✅ Login correcto, token obtenido.");
 
-// =======================
-// Login en Particle
-// =======================
-particle.login({ username: 'rgregorio0@ucol.mx', password: 'Pacofran25?' }).then(
-  function (data) {
-    token = data.body.access_token;
-    console.log("Login correcto, token obtenido.");
-  },
-  function (err) {
-    console.error('No se pudo iniciar sesión en Particle:', err);
-  }
+        // Escuchar eventos del dispositivo
+        particle.getEventStream({ deviceId: DEVICE_ID, auth: token })
+            .then(function (stream) {
+                stream.on("event", function (event) {
+                    if (event.name === "Temp_C") {
+                        lastTemp = parseFloat(event.data);
+                        liveTemp.textContent = lastTemp.toFixed(1);
+                        liveFan.textContent = lastTemp >= slider.value ? "Encendido" : "Apagado";
+                    }
+                    if (event.name === "Humedad") {
+                        liveHum.textContent = parseFloat(event.data).toFixed(1);
+                    }
+                    if (event.name === "Luminosidad") {
+                        liveLux.textContent = parseInt(event.data);
+                    }
+                });
+            })
+            .catch(err => console.error("❌ Error getEventStream:", err));
+    },
+    function (err) {
+        console.error("❌ No se pudo iniciar sesión en Particle:", err);
+    }
 );
 
-// =======================
-// Configuración gráfica D3
-// =======================
-let svg = d3.select("#chart"),
-    width = +svg.attr("width"),
-    height = +svg.attr("height"),
-    margin = {top: 20, right: 20, bottom: 30, left: 50};
+// --- Slider para enviar límite de temperatura ---
+slider.addEventListener("input", function () {
+    desiredTempValue.textContent = this.value;
 
-let x = d3.scaleLinear().domain([0, 50]).range([margin.left, width - margin.right]);
-let y = d3.scaleLinear().domain([0, 100]).range([height - margin.bottom, margin.top]);
-
-let lineTemp = d3.line()
-  .x((d,i) => x(i))
-  .y(d => y(d.temp));
-
-let lineHum = d3.line()
-  .x((d,i) => x(i))
-  .y(d => y(d.hum));
-
-svg.append("path").attr("id","tempLine").attr("stroke","red").attr("fill","none").attr("stroke-width",2);
-svg.append("path").attr("id","humLine").attr("stroke","blue").attr("fill","none").attr("stroke-width",2);
-
-// =======================
-// Función para actualizar la tabla
-// =======================
-function renderTable() {
-  let tbody = $("#dataTable tbody");
-  tbody.empty();
-
-  let start = (currentPage - 1) * rowsPerPage;
-  let end = start + rowsPerPage;
-  let pageData = dataHistory.slice().reverse().slice(start, end);
-
-  pageData.forEach((row, idx) => {
-    tbody.append(`<tr>
-      <td>${start + idx + 1}</td>
-      <td>${row.temp.toFixed(2)} °C</td>
-      <td>${row.hum.toFixed(2)} %</td>
-      <td>${row.time}</td>
-    </tr>`);
-  });
-
-  $("#pageInfo").text(`Página ${currentPage} de ${Math.ceil(dataHistory.length / rowsPerPage)}`);
-  $("#prevPage").prop("disabled", currentPage === 1);
-  $("#nextPage").prop("disabled",currentPage === Math.ceil(dataHistory.length / rowsPerPage));
-}
-
-// =======================
-// Paginación
-// =======================
-$("#prevPage").click(() => { 
-  if(currentPage > 1){ currentPage--; renderTable(); } 
+    if (token) {
+        particle.callFunction({
+            deviceId: DEVICE_ID,
+            name: "Valor",
+            argument: this.value.toString(),
+            auth: token
+        }).then(result => {
+            console.log("✅ Nuevo límite enviado al dispositivo:", result.return_value);
+            // Actualizar el estado del ventilador según el nuevo límite
+            if (lastTemp !== undefined) {
+                liveFan.textContent = lastTemp >= slider.value ? "Encendido" : "Apagado";
+            }
+        }).catch(err => console.error("❌ Error al enviar límite:", err));
+    }
 });
-$("#nextPage").click(() => { 
-  if(currentPage < Math.ceil(dataHistory.length / rowsPerPage)){ currentPage++; renderTable(); } 
-});
-
-// =======================
-// Guardar en DB
-// =======================
-function guardarEnDB(temp, hum){
-  fetch('guardar_lectura.php', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ temp, hum })
-  })
-  .then(res => res.json())
-  .then(res => {
-    if(res.status !== "ok") console.error("Error guardando en DB:", res.msg);
-  })
-  .catch(err => console.error("Error fetch:", err));
-}
-
-// =======================
-// Obtener datos de Particle cada 15 segundos
-// =======================
-setInterval(function () {
-  if (!token) return;
-
-  Promise.all([
-    particle.getVariable({ deviceId: '29002b000b47313037363132', name: 'TEMP', auth: token }),
-    particle.getVariable({ deviceId: '29002b000b47313037363132', name: 'HUM',  auth: token })
-  ]).then(results => {
-    let temp = results[0].body.result;
-    let hum = results[1].body.result;
-
-    // Actualizar tarjetas
-    $Temp.text(temp.toFixed(2) + " °C");
-    $Hum.text(hum.toFixed(2) + " %");
-
-    // Guardar historial para gráfica y tabla
-    dataHistory.push({ temp, hum, time: new Date().toLocaleTimeString() });
-    if (dataHistory.length > 50) dataHistory.shift();
-
-    // Actualizar gráfica
-    svg.select("#tempLine").datum(dataHistory).attr("d", lineTemp);
-    svg.select("#humLine").datum(dataHistory).attr("d", lineHum);
-
-    // Actualizar tabla
-    renderTable();
-
-    // Guardar en DB
-    guardarEnDB(temp, hum);
-
-  }).catch(err => console.error("Error al obtener datos:", err));
-
-}, 15000);
