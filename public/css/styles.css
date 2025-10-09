@@ -2,15 +2,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
 
 :root {
-    /* Define variables de color para fácil mantenimiento */
-    /* ---- CAMBIO 1: Opacidad reducida para un mejor efecto cristal ---- */
-    --primary-glass-color: rgba(255, 255, 255, 0.80); /* Fondo del vidrio */
-    --border-glass-color: rgba(255, 255, 255, 0.90); /* Borde del vidrio ligeramente más visible */
     --text-color-light: #333333;
     --text-color-dark:  #555555;
-    --button-bg-color: rgba(255, 255, 255, 0.15); /* Fondo del botón */
+    --button-bg-color: rgba(255, 255, 255, 0.15);
     --button-hover-bg-color: rgba(255, 255, 255, 0.25);
-    --link-color:#000000; /* Color de los enlaces */
+    --link-color: #ffffff; /* --- CAMBIO: Enlaces ahora son blancos --- */
 }
 
 body {
@@ -32,47 +28,56 @@ body {
     padding: 20px;
 }
 
+
 .login-box {
-    /* Estilo Glassmorphism */
-   
-    /* ---- CAMBIO 2: Desenfoque aumentado para mejorar legibilidad ---- */
-    backdrop-filter: blur(15px);
+    /* --- CAMBIO 1: Panel principal más sólido (menos transparente) --- */
+    backdrop-filter: blur(50px);
     -webkit-backdrop-filter: blur(15px);
-    border: 1px solid var(--border-glass-color);
-    border-radius: 20px; /* Bordes suaves */
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2); /* Sombra visible */
+    
+    /* --- NUEVO: Borde brillante para resaltar --- */
+    border: 1px solid rgba(255, 255, 255, 0.5); /* Borde blanco semitransparente */
+
+    border-radius: 20px;
+    
+    /* --- NUEVO: Sombra más pronunciada para dar profundidad --- */
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3); /* Sombra más oscura y grande */
+    
     padding:  120px 65px 90px; 
     width: 100%;
-    max-width: 650px; /* Ancho ajustado al ejemplo */
+    max-width: 650px;
     text-align: center;
-    color: var(--text-color-light); /* Texto claro general */
+    color: var(--text-color-light);
     position: relative;
+    /* --- AÑADIMOS UNA LÍNEA MÁS --- */
+    background: rgba(0, 0, 0, 0.1); /* Fondo oscuro muy sutil para mejorar contraste */
 }
 
-/* Título "Login" en la parte superior del cuadro */
+/* ... (El resto de tu CSS va aquí abajo) ... */
+
 .login-title {
     position: absolute;
-    top: -0px; /* Para que sobresalga un poco */
+    top: -0px;
     left: 50%;
     transform: translateX(-50%);
-    background: var(--primary-glass-color); /* Fondo translúcido */
+    background: rgba(255, 255, 255, 0.80);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    border: 1px solid var(--border-glass-color);
+    border: 1px solid rgba(255, 255, 255, 0.90);
     border-radius: 15px;
     padding: 17px 40px;
     font-size: 35px;
     font-weight: 600;
     color: #3a3a3a;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    white-space: nowrap; /* Evita que el texto se rompa */
+    white-space: nowrap;
 }
 
 .input-group {
     display: flex;
     align-items: center;
     margin-bottom: 25px;
-    background: rgba(255, 255, 255, 0.1); /* Fondo translúcido para los inputs */
+    /* --- CAMBIO 2: Fondo de los inputs más visible --- */
+    background: rgba(0, 0, 0, 0.2); /* Fondo oscuro semitransparente para mayor contraste */
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 10px;
     padding: 10px 15px;
@@ -81,7 +86,7 @@ body {
 
 .input-group:focus-within {
     border-color: rgba(255, 255, 255, 0.6);
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.3); /* Brillo al enfocar */
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
 }
 
 .input-group input {
@@ -89,18 +94,20 @@ body {
     border: none;
     outline: none;
     background-color: transparent;
-    color: #ffffff; /* Texto blanco en el input */
+    color: #ffffff; /* Texto que escribes es blanco */
     font-size: 20px;
-    padding: 10px 0; /* Ajuste vertical */
+    padding: 10px 0;
 }
 
 .input-group input::placeholder {
-    color: #cccccc; /* Prueba con este gris claro */
+    /* --- CAMBIO 3: Placeholder más legible --- */
+    color: #dddddd; /* Un gris muy claro para el placeholder */
 }
 
 .input-group .icon {
-    color: var(--text-color-dark); /* Iconos grises */
-    margin-left: 15px; /* Icono a la derecha del input */
+    /* --- CAMBIO 4: Iconos más visibles --- */
+    color: #dddddd; /* Mismo color que el placeholder */
+    margin-left: 15px;
     font-size: 28px;
 }
 
@@ -110,6 +117,7 @@ body {
     align-items: center;
     margin-bottom: 30px;
     font-size: 18px;
+    /* --- CAMBIO 5: Texto de "Recuérdame" y enlaces más claros --- */
     color:  #ffffff;
 }
 
@@ -122,9 +130,9 @@ body {
     margin-right: 8px;
     height: 16px;
     width: 16px;
-    background: transparent; /* Fondo transparente del checkbox */
-    border: 1px solid var(--text-color-dark); /* Borde del checkbox */
-    accent-color: var(--link-color); /* Color del "checked" */
+    background: transparent;
+    border: 1px solid #ffffff;
+    accent-color: var(--link-color);
     cursor: pointer;
 }
 
@@ -142,7 +150,7 @@ body {
 .login-button {
     width: 100%;
     padding: 15px;
-    background: var(--button-bg-color); /* Fondo de botón translúcido */
+    background: rgba(0, 0, 0, 0.2); /* Botón con el mismo estilo de los inputs */
     border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 10px;
     color: #ffffff;
@@ -154,14 +162,14 @@ body {
 }
 
 .login-button:hover {
-    background-color: var(--button-hover-bg-color);
+    background-color: rgba(0, 0, 0, 0.3);
     box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
 }
 
 .register-text {
     margin-top: 30px;
     font-size: 14px;
-    color: var(--text-color-dark);
+    color: #ffffff;
 }
 
 .register-text a {
