@@ -46,10 +46,6 @@ body {
 	overflow-x: hidden;
 }
 
-
-
-
-
 /* SIDEBAR */
 #sidebar {
 	position: fixed;
@@ -63,8 +59,10 @@ body {
 	transition: .3s ease;
 	overflow-x: hidden;
 	scrollbar-width: none;
+	display: flex;
+	flex-direction: column;
 }
-#sidebar::--webkit-scrollbar {
+#sidebar::-webkit-scrollbar {
 	display: none;
 }
 #sidebar.hide {
@@ -90,10 +88,21 @@ body {
 	display: flex;
 	justify-content: center;
 }
-#sidebar .side-menu {
+
+/* Contenedor para el menú superior */
+#sidebar .side-menu.top {
 	width: 100%;
 	margin-top: 48px;
+	flex-grow: 1; /* Ocupa el espacio disponible */
 }
+
+/* Contenedor para el menú inferior (con el logout) */
+#sidebar .side-menu.bottom {
+	width: 100%;
+	margin-top: auto; /* Empuja el menú inferior hacia abajo */
+	margin-bottom: 20px; /* Espacio en la parte inferior */
+}
+
 #sidebar .side-menu li {
 	height: 48px;
 	background: transparent;
@@ -159,10 +168,6 @@ body {
 }
 /* SIDEBAR */
 
-
-
-
-
 /* CONTENT */
 #content {
 	position: relative;
@@ -174,9 +179,6 @@ body {
 	width: calc(100% - 60px);
 	left: 60px;
 }
-
-
-
 
 /* NAVBAR */
 #content nav {
@@ -208,6 +210,7 @@ body {
 #content nav .bx.bx-menu {
 	cursor: pointer;
 	color: var(--dark);
+	margin-right: auto;
 }
 #content nav .nav-link {
 	font-size: 16px;
@@ -219,7 +222,6 @@ body {
 #content nav form {
 	max-width: 400px;
 	width: 100%;
-	margin-right: auto;
 }
 #content nav form .form-input {
 	display: flex;
@@ -302,10 +304,6 @@ body {
 }
 /* NAVBAR */
 
-
-
-
-
 /* MAIN */
 #content main {
 	width: 100%;
@@ -356,9 +354,6 @@ body {
 	font-weight: 500;
 }
 
-
-
-
 #content main .box-info {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -402,10 +397,6 @@ body {
 #content main .box-info li .text p {
 	color: var(--dark);	
 }
-
-
-
-
 
 #content main .table-data {
 	display: flex;
@@ -485,7 +476,6 @@ body {
 	background: var(--orange);
 }
 
-
 #content main .table-data .todo {
 	flex-grow: 1;
 	flex-basis: 300px;
@@ -518,14 +508,6 @@ body {
 /* MAIN */
 /* CONTENT */
 
-
-
-
-
-
-
-
-
 @media screen and (max-width: 768px) {
 	#sidebar {
 		width: 200px;
@@ -540,11 +522,6 @@ body {
 		display: none;
 	}
 }
-
-
-
-
-
 
 @media screen and (max-width: 576px) {
 	#content nav form .form-input input {

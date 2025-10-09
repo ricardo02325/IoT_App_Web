@@ -3,56 +3,70 @@
 @section('title', 'FIE - Mapa Principal')
 
 @push('css')
-<link rel="stylesheet" href="{{ asset('css/salones.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/salones.css') }}">
 @endpush
 
 @push('scripts')
-<script src="{{ asset('js/script.js') }}" defer></script>
+    <script src="{{ asset('js/script.js') }}" defer></script>
 @endpush
 
 @section('content')
-<main class="body-seccion13">
-    <img id="diagrama13" src="{{ asset('imgs/FIE.png') }}" alt="Mapa de la Facultad de Ingeniería Eléctrica">
+    <main class="body-seccion13">
+        <img id="diagrama13" src="{{ asset('imgs/FIE.png') }}" alt="Mapa de la Facultad de Ingeniería Eléctrica">
 
-    <!-- Marcadores interactivos -->
-    <div class="circle13">
-        <span class="tooltip-text13">Laboratorio de Sistemas Eléctricos de Potencia (LSE)</span>
-    </div>
+        <!-- Marcadores interactivos -->
+        <div class="circle13">
+            <span class="tooltip-text13">Laboratorio de Sistemas Eléctricos de Potencia (LSE)</span>
+        </div>
 
-    <div class="circle23">
-        <span class="tooltip-text13">Laboratorio de Electricidad y Magnetismo (LEM)</span>
-    </div>
+        <div class="circle23">
+            <span class="tooltip-text13">Laboratorio de Electricidad y Magnetismo (LEM)</span>
+        </div>
 
-    <div class="circle33">
-        <span class="tooltip-text13">Laboratorio de Internet de las Cosas (LIOT)</span>
-    </div>
+        <div class="circle33">
+            <span class="tooltip-text13">Laboratorio de Internet de las Cosas (LIOT)</span>
+        </div>
 
-    <div class="circle43">
-        <span class="tooltip-text13">Dirección (D)</span>
-    </div>
+        <div class="circle43">
+            <span class="tooltip-text13">Dirección (D)</span>
+        </div>
 
-    <div class="circle53">
-        <span class="tooltip-text13">Laboratorio de Mecánica (LM)</span>
-    </div>
+        <div class="circle53">
+            <span class="tooltip-text13">Laboratorio de Mecánica (LM)</span>
+        </div>
 
-    <div class="circle63">
-        <span class="tooltip-text13">Aulas 1 (A1)</span>
-    </div>
+        <!-- 🔹 Salón 5D - Lecturas en tiempo real desde sensores -->
+        <div class="circle63">
+            <span class="tooltip-text13">
+                Salón 5D - Edificio A (Capacidad: 30)
+                <br>
+                <strong>Lecturas en tiempo real:</strong>
+                <br>Temperatura: <span id="live-temp">--</span> °C
+                <br>Humedad: <span id="live-hum">--</span> %
+                <br>Luminosidad: <span id="live-lux">--</span> lux
+                <br>Estado ventilador: <span id="live-fan">--</span>
+                <br><br>
+                <label>Temperatura deseada:
+                    <span id="desired-temp-value">30</span> °C
+                </label>
+                <input type="range" id="desired-temp-slider" min="15" max="40" value="30">
+            </span>
+        </div>
 
-    <div class="circle73">
-        <span class="tooltip-text13">Aulas 2 (A2)</span>
-    </div>
+        <div class="circle73">
+            <span class="tooltip-text13">Aulas 2 (A2)</span>
+        </div>
 
-    <div class="circle83">
-        <span class="tooltip-text13">Aulas 3 (A3)</span>
-    </div>
+        <div class="circle83">
+            <span class="tooltip-text13">Aulas 3 (A3)</span>
+        </div>
 
-    <div class="circle93">
-        <span class="tooltip-text13">Laboratorio de Electrónica (LE)</span>
-    </div>
+        <div class="circle93">
+            <span class="tooltip-text13">Laboratorio de Electrónica (LE)</span>
+        </div>
 
-    <div class="circle103">
-        <span class="tooltip-text13">Laboratorio de Instrumentación y Control (LIC)</span>
-    </div>
-</main>
+        <div class="circle103">
+            <span class="tooltip-text13">Laboratorio de Instrumentación y Control (LIC)</span>
+        </div>
+    </main>
 @endsection
