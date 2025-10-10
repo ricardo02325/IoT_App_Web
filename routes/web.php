@@ -3,7 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\LecturaController;
-use App\Http\Controllers\HomeController;
+// No necesitas HomeController si no lo estás usando, lo he comentado.
+// use App\Http\Controllers\HomeController; 
 
 /*
 |--------------------------------------------------------------------------
@@ -13,12 +14,12 @@ use App\Http\Controllers\HomeController;
 |
 */
 
-// --- PASO 1: Rutas de Autenticación ---
-// Esta línea crea las rutas /login, /logout, /register, etc.
+// --- Rutas de Autenticación ---
+// Crea /login, /logout, /register, etc.
 Auth::routes();
 
 
-// --- PASO 2: La Nueva Ruta Principal (El Guardia) ---
+// --- Redirección Principal ---
 // Redirige según si el usuario ha iniciado sesión o no.
 Route::get('/', function () {
     if (Auth::check()) {
@@ -30,17 +31,20 @@ Route::get('/', function () {
 });
 
 
-// --- PASO 3: Grupo de Rutas Protegidas ---
-// Todas las rutas dentro de este grupo SÓLO serán accesibles
-// para usuarios que hayan iniciado sesión.
+// --- Grupo de Rutas Protegidas (Vistas para el usuario) ---
+// Solo usuarios autenticados pueden acceder aquí.
 Route::middleware(['auth'])->group(function () {
     
-    // Tus rutas personalizadas, ahora seguras y dentro del panel
+    // Tus vistas del panel de administrador
     Route::get('/inicio', [LecturaController::class, 'index'])->name('inicio');
     Route::get('/salones', [LecturaController::class, 'salones'])->name('salones');
-
-    // La ruta /home ha sido eliminada.
 
     // ... Aquí puedes añadir todas las futuras rutas de tu panel ...
 
 });
+
+
+// --- RUTA PÚBLICA PARA GUARDAR DATOS (Para los sensores) ---
+// Esta ruta NO está protegida por 'auth' para que los sensores puedan enviar datos.
+Route::post('/lecturas', [LecturaController::class, 'store'])->name('lecturas.store');
+

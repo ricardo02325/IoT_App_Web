@@ -38,18 +38,12 @@
         <!-- 🔹 Salón 5D - Lecturas en tiempo real desde sensores -->
         <div class="circle63">
             <span class="tooltip-text13">
-                Salón 5D - Edificio A (Capacidad: 30)
+                Salón 5D - Edificio A
                 <br>
                 <strong>Lecturas en tiempo real:</strong>
                 <br>Temperatura: <span id="live-temp">--</span> °C
                 <br>Humedad: <span id="live-hum">--</span> %
                 <br>Luminosidad: <span id="live-lux">--</span> lux
-                <br>Estado ventilador: <span id="live-fan">--</span>
-                <br><br>
-                <label>Temperatura deseada:
-                    <span id="desired-temp-value">30</span> °C
-                </label>
-                <input type="range" id="desired-temp-slider" min="15" max="40" value="30">
             </span>
         </div>
 

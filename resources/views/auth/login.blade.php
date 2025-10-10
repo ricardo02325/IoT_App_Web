@@ -37,18 +37,6 @@
                 </span>
             @enderror
 
-            <div class="options">
-                <label>
-                    {{-- Se añade el atributo "name" al checkbox para que Laravel lo reconozca --}}
-                    <input type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}> {{ __('Recuérdame') }}
-                </label>
-                {{-- Se verifica si la ruta para resetear contraseña existe y se enlaza dinámicamente --}}
-                @if (Route::has('password.request'))
-                    <a href="{{ route('password.request') }}">
-                        {{ __('¿Olvidaste tu contraseña?') }}
-                    </a>
-                @endif
-            </div>
             
             {{-- Se asegura que el botón sea de tipo "submit" para enviar el formulario --}}
             <button type="submit" class="login-button">{{ __('Iniciar sesión') }}</button>

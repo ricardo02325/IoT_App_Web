@@ -2,54 +2,58 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Lectura;   // ← Esto faltaba
+use App\Models\Lectura;
 use App\Models\Usuario;
 use App\Models\Salon;
 use App\Models\Reporte;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class LecturaController extends Controller
 {
-    /**
-     * Método principal (para la ruta '/')
-     */
     public function index()
     {
-        // Valor máximo registrado en todas las lecturas
         $valorMaximo = Lectura::max('valor');
-
-        // Total de salones
         $totalSalones = Salon::count();
-
-        // Total de alumnos
         $totalAlumnos = Usuario::where('tipo_usuario', 'alumno')->count();
-
-        // Salones con sensores y últimas lecturas
-        $salones = Salon::with([
-            'sensores.lecturas' => function ($q) {
-                $q->latest('fecha_hora')->limit(1);
-            }
-        ])->get();
-
-        // Traer reportes recientes (ejemplo: últimos 5)
+        $salones = Salon::with(['sensores.lecturas' => function ($q) {
+            $q->latest('fecha_hora')->limit(1);
+        }])->get();
         $reportes = Reporte::latest('created_at')->take(5)->get();
-
         return view('dashboard.dashboard', compact('valorMaximo', 'totalSalones', 'totalAlumnos', 'salones', 'reportes'));
     }
 
-    /**
-     * Muestra la vista específica de los salones
-     */
     public function salones()
     {
-        // Obtenemos todos los salones con sus sensores y su última lectura
-        $salones = Salon::with([
-            'sensores.lecturas' => function ($query) {
-                $query->latest('fecha_hora')->limit(1);
-            }
-        ])->get();
-
-        // Renderiza la vista de salones
+        $salones = Salon::with(['sensores.lecturas' => function ($query) {
+            $query->latest('fecha_hora')->limit(1);
+        }])->get();
         return view('salones.salones', compact('salones'));
+    }
+
+    /**
+     * Este es el método que guarda los datos.
+     */
+    public function store(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'valor' => 'required|numeric',
+            'id_sensor' => 'required|integer|exists:sensores,id_sensor',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $lectura = Lectura::create([
+            'valor' => $request->input('valor'),
+            'id_sensor' => $request->input('id_sensor'),
+            'fecha_hora' => now(),
+        ]);
+
+        return response()->json([
+            'message' => '¡Lectura guardada exitosamente!',
+            'data' => $lectura
+        ], 201);
     }
 }
