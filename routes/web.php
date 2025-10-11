@@ -48,3 +48,6 @@ Route::middleware(['auth'])->group(function () {
 // Esta ruta NO está protegida por 'auth' para que los sensores puedan enviar datos.
 Route::post('/lecturas', [LecturaController::class, 'store'])->name('lecturas.store');
 
+
+
+Route::get('/simular-lecturas', [LecturaController::class, 'simular']);
