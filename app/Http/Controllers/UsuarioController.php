@@ -2,7 +2,7 @@
 use App\Models\Usuario;
 use App\Http\Controllers\Controller;
 
-class LecturaController extends Controller
+class UsuarioController extends Controller
 {
     public function index()
     {
