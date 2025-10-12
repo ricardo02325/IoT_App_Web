@@ -82,10 +82,10 @@
 /* a1 */
 .circle63 {
     position: absolute;
-    width: 20px;
-    height: 20px;
+    width: 35px;
+    height: 35px;
     top: 300px;
-    left: 650px;
+    left: 690px;
     background-color: red;
     border-radius: 50%;
 }

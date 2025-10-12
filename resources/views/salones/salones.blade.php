@@ -15,7 +15,7 @@
         <img id="diagrama13" src="{{ asset('imgs/FIE.png') }}" alt="Mapa de la Facultad de Ingeniería Eléctrica">
 
         <!-- Marcadores interactivos -->
-        <div class="circle13">
+        <!-- <div class="circle13">
             <span class="tooltip-text13">Laboratorio de Sistemas Eléctricos de Potencia (LSE)</span>
         </div>
 
@@ -33,7 +33,7 @@
 
         <div class="circle53">
             <span class="tooltip-text13">Laboratorio de Mecánica (LM)</span>
-        </div>
+        </div> -->
 
         <!-- 🔹 Salón 5D - Lecturas en tiempo real desde sensores -->
         <div class="circle63">
@@ -47,7 +47,7 @@
             </span>
         </div>
 
-        <div class="circle73">
+        <!-- <div class="circle73">
             <span class="tooltip-text13">Aulas 2 (A2)</span>
         </div>
 
@@ -61,6 +61,6 @@
 
         <div class="circle103">
             <span class="tooltip-text13">Laboratorio de Instrumentación y Control (LIC)</span>
-        </div>
+        </div> -->
     </main>
 @endsection

@@ -9,32 +9,32 @@
 			<div class="left">
 				<h1>Dashboard</h1>
 			</div>
-			<a href="#" class="btn-download">
-				<i class='bx bxs-cloud-download'></i>
-				<span class="text">Descargar PDF</span>
-			</a>
+			<!-- <a href="#" class="btn-download">
+											<i class='bx bxs-cloud-download'></i>
+											<span class="text">Descargar PDF</span>
+										</a> -->
 		</div>
 
 		<ul class="box-info">
 			<li>
-				<i class='bx bxs-calendar-check'></i>
+				<i class='bx bxs-thermometer'></i>
 				<span class="text">
-					<h3>{{ $valorMaximo ?? 'N/A' }}</h3>
-					<p>Valor máximo</p>
+					<h3>{{ $valorMaximo ?? '28' }}</h3>
+					<p>Temperatura máxima</p>
 				</span>
 			</li>
 			<li>
 				<i class='bx bxs-group'></i>
 				<span class="text">
-					<h3>{{ $totalSalones ?? '0' }}</h3>
-					<p>Alumnos</p>
+					<h3>{{ $totalAlumnos ?? '0' }}</h3>
+					<p>Total de alumnos</p>
 				</span>
 			</li>
 			<li>
-				<i class='bx bxs-dollar-circle'></i>
+				<i class='bx bxs-school'></i>
 				<span class="text">
-					<h3>{{ $totalAlumnos ?? '0' }}</h3>
-					<p>De alumnos</p>
+					<h3>{{ $totalSalones ?? '0' }}</h3>
+					<p>Total de salones</p>
 				</span>
 			</li>
 		</ul>
@@ -49,66 +49,87 @@
 				<table>
 					<thead>
 						<tr>
-							<th>Título</th>
-							<th>Descripción</th>
-							<th>Salón</th>
-							<th>Última Lectura</th>
-							<th>Estado</th>
-							<th>Fecha</th>
+							<th style="text-align: center;">Título</th>
+							<th style="text-align: center;">Descripción</th>
+							<th style="text-align: center;">Salón</th>
+							<th style="text-align: center;">Última Lectura</th>
+							<th style="text-align: center;">Estado</th>
+							<th style="text-align: center;">Fecha</th>
 						</tr>
 					</thead>
 					<tbody>
 						@forelse($reportes as $reporte)
-							<tr>
-								<td>{{ $reporte->titulo }}</td>
-								<td>{{ $reporte->descripcion }}</td>
-								<td>{{ $reporte->salon->nombre ?? 'N/A' }}</td>
-								<td>
-									@if($reporte->salon && $reporte->salon->sensores)
-										@foreach($reporte->salon->sensores as $sensor)
-											{{ ucfirst($sensor->tipo) }}:
-											{{ $sensor->lecturas->first()->valor ?? 'N/A' }}
-											<br>
-										@endforeach
-									@else
-										N/A
-									@endif
-								</td>
-								<td>
-									<span
-										class="status 
-								{{ $reporte->estatus == 'completado' ? 'completed' : ($reporte->estatus == 'pendiente' ? 'pending' : 'process') }}">
-										{{ ucfirst($reporte->estatus) }}
-									</span>
-								</td>
-								<td>{{ $reporte->created_at }}</td>
-							</tr>
+										<tr>
+											<td style="text-align: center; vertical-align: middle; padding: 40px 0;">
+												{{ $reporte->titulo }}
+											</td>
+											<td style="text-align: center;">{{ $reporte->descripcion }}</td>
+											<td style="text-align: center;">{{ $reporte->salon->nombre ?? 'N/A' }}</td>
+											<td style="text-align: center;">
+												@if($reporte->salon && $reporte->salon->sensores->count())
+													@php
+														$ultimaTemp = null;
+														$ultimaHum = null;
+														$ultimaLux = null;
+
+														foreach ($reporte->salon->sensores as $sensor) {
+															$tipo = strtolower($sensor->tipo ?? '');
+															$lectura = $sensor->lecturas->sortByDesc('fecha_hora')->first();
+															$valor = $lectura->valor ?? null;
+
+															if (str_contains($tipo, 'temperatura')) {
+																$ultimaTemp = $valor;
+															} elseif (str_contains($tipo, 'humedad')) {
+																$ultimaHum = $valor;
+															} elseif (str_contains($tipo, 'luz') || str_contains($tipo, 'luminosidad')) {
+																$ultimaLux = $valor;
+															}
+														}
+													@endphp
+
+													<strong>Temperatura:</strong> {{ $ultimaTemp ?? 'N/A' }} °C<br>
+													<strong>Humedad:</strong> {{ $ultimaHum ?? 'N/A' }} %<br>
+													<strong>Luminosidad:</strong> {{ $ultimaLux ?? 'N/A' }} lx
+												@else
+													N/A
+												@endif
+											</td>
+											<td style="text-align: center;">
+												<span class="status 
+																		{{ $reporte->estatus == 'completado' ? 'completed' :
+							($reporte->estatus == 'pendiente' ? 'pending' : 'process') }}">
+													{{ ucfirst($reporte->estatus) }}
+												</span>
+											</td>
+											<td style="text-align: center;">{{ $reporte->created_at->format('d/m/Y H:i') }}</td>
+										</tr>
 						@empty
 							<tr>
 								<td colspan="6" class="text-center">No hay reportes disponibles</td>
 							</tr>
 						@endforelse
 					</tbody>
+					<!-- CIERRO LA TABLA -->
 				</table>
 			</div>
 
 			<!-- <div class="todo">
-							<div class="head">
-								<h3>Todos</h3>
-								<i class='bx bx-plus'></i>
-								<i class='bx bx-filter'></i>
-							</div>
-							<ul class="todo-list">
-								<li class="completed">
-									<p>Todo List</p>
-									<i class='bx bx-dots-vertical-rounded'></i>
-								</li>
-								<li class="not-completed">
-									<p>Todo List</p>
-									<i class='bx bx-dots-vertical-rounded'></i>
-								</li>
-							</ul>
-						</div> -->
+														<div class="head">
+															<h3>Todos</h3>
+															<i class='bx bx-plus'></i>
+															<i class='bx bx-filter'></i>
+														</div>
+														<ul class="todo-list">
+															<li class="completed">
+																<p>Todo List</p>
+																<i class='bx bx-dots-vertical-rounded'></i>
+															</li>
+															<li class="not-completed">
+																<p>Todo List</p>
+																<i class='bx bx-dots-vertical-rounded'></i>
+															</li>
+														</ul>
+											</div> -->
 		</div>
 	</main>
 	<!-- /MAIN -->

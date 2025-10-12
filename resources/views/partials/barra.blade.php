@@ -13,15 +13,15 @@
 		</li>
 		<li class="{{ request()->routeIs('salones') ? 'active' : '' }}">
 			<a href="{{ route('salones') }}">
-				<i class='bx bxs-shopping-bag-alt'></i>
+				<i class='bx bxs-school'></i>
 				<span class="text">Salones</span>
 			</a>
 		</li>
 		<li>
-			<a href="#">
+			<!-- <a href="#">
 				<i class='bx bxs-doughnut-chart'></i>
 				<span class="text">Estadisticas</span>
-			</a>
+			</a> -->
 		</li>
 	</ul>
 	<ul class="side-menu">

@@ -9,23 +9,27 @@ use App\Models\Reporte;
 use App\Models\Sensor; // ✅ Importar el modelo Sensor
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class LecturaController extends Controller
 {
     public function index()
     {
-        $valorMaximo = Lectura::max('valor');
+
+        $valorMaximo = DB::table('lecturas')
+        ->join('sensores', 'lecturas.id_sensor', '=', 'sensores.id_sensor')
+        ->where('sensores.tipo', 'temperatura')
+        ->max('lecturas.valor');
         $totalSalones = Salon::count();
         $totalAlumnos = Usuario::where('tipo_usuario', 'alumno')->count();
-
         $salones = Salon::with(['sensores.lecturas' => function ($q) {
             $q->latest('fecha_hora')->limit(1);
         }])->get();
-
         $reportes = Reporte::latest('created_at')->take(5)->get();
 
         return view('dashboard.dashboard', compact('valorMaximo', 'totalSalones', 'totalAlumnos', 'salones', 'reportes'));
-    }
+
+    } 
 
     public function salones()
     {
