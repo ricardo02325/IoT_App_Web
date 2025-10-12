@@ -2,6 +2,8 @@
 const liveTemp = document.getElementById("live-temp");
 const liveHum = document.getElementById("live-hum");
 const liveLux = document.getElementById("live-lux");
+const slider = document.getElementById("temp-slider");
+const valueDisplay = document.getElementById("temp-value");
 
 // --- Configuración Particle ---
 const DEVICE_ID = "29002b000b47313037363132";
@@ -9,40 +11,50 @@ const USERNAME = "rgregorio0@ucol.mx";
 const PASSWORD = "Pacofran25?";
 
 let token = null;
+let lastTemp = undefined;
 
 // --- Inicializar Particle ---
-var particle = new Particle();
+const particle = new Particle();
 
-// --- Login a Particle Cloud ---
+// --- Login ---
 particle.login({ username: USERNAME, password: PASSWORD }).then(
-    function (data) {
+    async function (data) {
         token = data.body.access_token;
         console.log("✅ Login correcto, token obtenido.");
 
-        // Escuchar eventos del dispositivo
+        // === Obtener valor inicial de temp_limit desde Particle ===
+        try {
+            const variable = await particle.getVariable({
+                deviceId: DEVICE_ID,
+                name: "temp_limit",
+                auth: token
+            });
+
+            const limit = variable.body.result;
+            slider.value = limit;
+            valueDisplay.textContent = `${limit.toFixed(1)} °C`;
+            console.log(`🌡️ Límite inicial obtenido desde Particle: ${limit} °C`);
+        } catch (err) {
+            console.warn("⚠️ No se pudo obtener temp_limit inicial, usando valor por defecto 30 °C");
+            slider.value = 30;
+            valueDisplay.textContent = "30.0 °C";
+        }
+
+        // === Escuchar eventos del dispositivo ===
         particle.getEventStream({ deviceId: DEVICE_ID, auth: token })
             .then(function (stream) {
                 stream.on("event", function (event) {
-
-                    // --- TEMPERATURA ---
                     if (event.name === "Temp_C") {
-                        const t = parseFloat(event.data);
-                        liveTemp.textContent = t.toFixed(1);
-                        enviarLectura(1, t); // id_sensor = 1
+                        lastTemp = parseFloat(event.data);
+                        liveTemp.textContent = lastTemp.toFixed(1);
                     }
 
-                    // --- HUMEDAD ---
                     if (event.name === "Humedad") {
-                        const h = parseFloat(event.data);
-                        liveHum.textContent = h.toFixed(1);
-                        enviarLectura(2, h); // id_sensor = 2
+                        liveHum.textContent = parseFloat(event.data).toFixed(1);
                     }
 
-                    // --- LUMINOSIDAD ---
                     if (event.name === "Luminosidad") {
-                        const l = parseInt(event.data);
-                        liveLux.textContent = l;
-                        enviarLectura(3, l); // id_sensor = 3
+                        liveLux.textContent = parseInt(event.data);
                     }
                 });
             })
@@ -53,18 +65,23 @@ particle.login({ username: USERNAME, password: PASSWORD }).then(
     }
 );
 
-// --- Función auxiliar para enviar lecturas al backend Laravel ---
-function enviarLectura(id_sensor, valor) {
-    fetch("/lecturas", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
-        },
-        body: JSON.stringify({ id_sensor, valor })
-    })
-    .then(res => res.json())
-    .then(data => console.log(`📤 Lectura guardada (sensor ${id_sensor}):`, data))
-    .catch(err => console.error("❌ Error al guardar lectura:", err));
-}
+// --- Slider para enviar límite de temperatura ---
+slider.addEventListener("input", async function () {
+    const newLimit = this.value;
+    valueDisplay.textContent = `${newLimit} °C`;
+
+    if (!token) return;
+
+    try {
+        const result = await particle.callFunction({
+            deviceId: DEVICE_ID,
+            name: "Valor",
+            argument: newLimit.toString(),
+            auth: token
+        });
+
+        console.log(`✅ Nuevo límite enviado al dispositivo: ${newLimit} °C`, result);
+    } catch (err) {
+        console.error("❌ Error al enviar límite:", err);
+    }
+});
