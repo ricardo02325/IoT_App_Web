@@ -10,9 +10,9 @@
 				<h1>Dashboard</h1>
 			</div>
 			<!-- <a href="#" class="btn-download">
-											<i class='bx bxs-cloud-download'></i>
-											<span class="text">Descargar PDF</span>
-										</a> -->
+												<i class='bx bxs-cloud-download'></i>
+												<span class="text">Descargar PDF</span>
+											</a> -->
 		</div>
 
 		<ul class="box-info">
@@ -58,7 +58,14 @@
 						</tr>
 					</thead>
 					<tbody>
-						@forelse($reportes as $reporte)
+						@php
+							// Agrupar reportes por salón y obtener el último de cada grupo
+							$ultimosReportes = $reportes->groupBy('id_salon')->map(function ($grupo) {
+								return $grupo->sortByDesc('created_at')->first();
+							});
+						@endphp
+
+						@forelse($ultimosReportes as $reporte)
 										<tr>
 											<td style="text-align: center; vertical-align: middle; padding: 40px 0;">
 												{{ $reporte->titulo }}
@@ -96,7 +103,7 @@
 											</td>
 											<td style="text-align: center;">
 												<span class="status 
-																		{{ $reporte->estatus == 'completado' ? 'completed' :
+										{{ $reporte->estatus == 'completado' ? 'completed' :
 							($reporte->estatus == 'pendiente' ? 'pending' : 'process') }}">
 													{{ ucfirst($reporte->estatus) }}
 												</span>
@@ -114,22 +121,22 @@
 			</div>
 
 			<!-- <div class="todo">
-														<div class="head">
-															<h3>Todos</h3>
-															<i class='bx bx-plus'></i>
-															<i class='bx bx-filter'></i>
-														</div>
-														<ul class="todo-list">
-															<li class="completed">
-																<p>Todo List</p>
-																<i class='bx bx-dots-vertical-rounded'></i>
-															</li>
-															<li class="not-completed">
-																<p>Todo List</p>
-																<i class='bx bx-dots-vertical-rounded'></i>
-															</li>
-														</ul>
-											</div> -->
+															<div class="head">
+																<h3>Todos</h3>
+																<i class='bx bx-plus'></i>
+																<i class='bx bx-filter'></i>
+															</div>
+															<ul class="todo-list">
+																<li class="completed">
+																	<p>Todo List</p>
+																	<i class='bx bx-dots-vertical-rounded'></i>
+																</li>
+																<li class="not-completed">
+																	<p>Todo List</p>
+																	<i class='bx bx-dots-vertical-rounded'></i>
+																</li>
+															</ul>
+												</div> -->
 		</div>
 	</main>
 	<!-- /MAIN -->
