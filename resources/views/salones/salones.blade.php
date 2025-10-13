@@ -16,7 +16,7 @@
         <img id="diagrama13" src="{{ asset('imgs/FIE.png') }}" alt="Mapa de la Facultad de Ingeniería Eléctrica">
 
         <div class="image-credit">
-            Crédito del mapa: <a href="#" target="_blank">[JIMENEZ BETANCOURT RAMON OCTAVIO]</a>
+            Crédito del mapa: <a href="https://codepen.io/ramonfie-the-sasster/pen/bGyWzrO" target="_blank">[JIMENEZ BETANCOURT RAMON OCTAVIO]</a>
         </div>
 
         <!-- Marcadores interactivos -->
