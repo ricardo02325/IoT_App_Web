@@ -15,7 +15,7 @@ const LECTURAS_ROUTE = "/lecturas"; // Asegúrate que esta ruta esté configurad
 
 let token = null;
 let lastTemp = undefined;
-
+// Comentario
 // --- Inicializar Particle ---
 const particle = new Particle();
 
