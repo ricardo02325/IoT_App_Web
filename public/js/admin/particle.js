@@ -10,6 +10,9 @@ const DEVICE_ID = "29002b000b47313037363132";
 const USERNAME = "rgregorio0@ucol.mx";
 const PASSWORD = "Pacofran25?";
 
+// Rutas Laravel
+const LECTURAS_ROUTE = "/lecturas"; // Asegúrate que esta ruta esté configurada en web.php
+
 let token = null;
 let lastTemp = undefined;
 
@@ -44,17 +47,42 @@ particle.login({ username: USERNAME, password: PASSWORD }).then(
         particle.getEventStream({ deviceId: DEVICE_ID, auth: token })
             .then(function (stream) {
                 stream.on("event", function (event) {
+                    let sensorId;
+
                     if (event.name === "Temp_C") {
                         lastTemp = parseFloat(event.data);
                         liveTemp.textContent = lastTemp.toFixed(1);
+                        sensorId = 1; // ID de sensor temperatura
                     }
 
                     if (event.name === "Humedad") {
                         liveHum.textContent = parseFloat(event.data).toFixed(1);
+                        sensorId = 2; // ID de sensor humedad
                     }
 
                     if (event.name === "Luminosidad") {
                         liveLux.textContent = parseInt(event.data);
+                        sensorId = 3; // ID de sensor luminosidad
+                    }
+
+                    // Guardar lectura en Laravel
+                    if (sensorId !== undefined) {
+                        fetch(LECTURAS_ROUTE, {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            },
+                            body: JSON.stringify({
+                                id_sensor: sensorId,
+                                valor: parseFloat(event.data)
+                            })
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            console.log(`📤 Lectura guardada (sensor ${sensorId}):`, data);
+                        })
+                        .catch(err => console.error("❌ Error al guardar lectura:", err));
                     }
                 });
             })
@@ -81,6 +109,23 @@ slider.addEventListener("input", async function () {
         });
 
         console.log(`✅ Nuevo límite enviado al dispositivo: ${newLimit} °C`, result);
+
+        // Opcional: guardar el límite en la base de datos como lectura de temperatura
+        fetch(LECTURAS_ROUTE, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({
+                id_sensor: 1, // sensor temperatura
+                valor: parseFloat(newLimit)
+            })
+        })
+        .then(res => res.json())
+        .then(data => console.log("📤 Límite guardado como lectura:", data))
+        .catch(err => console.error("❌ Error al guardar límite como lectura:", err));
+
     } catch (err) {
         console.error("❌ Error al enviar límite:", err);
     }
