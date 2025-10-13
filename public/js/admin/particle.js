@@ -11,11 +11,12 @@ const USERNAME = "rgregorio0@ucol.mx";
 const PASSWORD = "Pacofran25?";
 
 // Rutas Laravel
-const LECTURAS_ROUTE = "/lecturas"; // Asegúrate que esta ruta esté configurada en web.php
+const LECTURAS_ROUTE = "/lecturas"; // Debe existir en web.php
 
 let token = null;
 let lastTemp = undefined;
-// Comentario
+let sliderInitialized = false;
+
 // --- Inicializar Particle ---
 const particle = new Particle();
 
@@ -33,14 +34,18 @@ particle.login({ username: USERNAME, password: PASSWORD }).then(
                 auth: token
             });
 
-            const limit = variable.body.result;
-            slider.value = limit;
-            valueDisplay.textContent = `${limit.toFixed(1)} °C`;
+            const limit = parseFloat(variable.body.result);
+            if (!sliderInitialized) {
+                slider.value = limit;
+                valueDisplay.textContent = `${limit.toFixed(1)} °C`;
+            }
             console.log(`🌡️ Límite inicial obtenido desde Particle: ${limit} °C`);
         } catch (err) {
-            console.warn("⚠️ No se pudo obtener temp_limit inicial, usando valor por defecto 30 °C");
-            slider.value = 30;
-            valueDisplay.textContent = "30.0 °C";
+            console.warn("⚠️ No se pudo obtener temp_limit, usando 30 °C");
+            if (!sliderInitialized) {
+                slider.value = 30;
+                valueDisplay.textContent = "30.0 °C";
+            }
         }
 
         // === Escuchar eventos del dispositivo ===
@@ -79,9 +84,7 @@ particle.login({ username: USERNAME, password: PASSWORD }).then(
                             })
                         })
                         .then(res => res.json())
-                        .then(data => {
-                            console.log(`📤 Lectura guardada (sensor ${sensorId}):`, data);
-                        })
+                        .then(data => console.log(`📤 Lectura guardada (sensor ${sensorId}):`, data))
                         .catch(err => console.error("❌ Error al guardar lectura:", err));
                     }
                 });
@@ -95,37 +98,21 @@ particle.login({ username: USERNAME, password: PASSWORD }).then(
 
 // --- Slider para enviar límite de temperatura ---
 slider.addEventListener("input", async function () {
-    const newLimit = this.value;
-    valueDisplay.textContent = `${newLimit} °C`;
+    sliderInitialized = true; // marcar que usuario movió slider
+    const newLimit = parseFloat(this.value);
+    valueDisplay.textContent = `${newLimit.toFixed(1)} °C`;
 
     if (!token) return;
 
     try {
-        const result = await particle.callFunction({
+        // Enviar nuevo límite a Particle
+        await particle.callFunction({
             deviceId: DEVICE_ID,
             name: "Valor",
             argument: newLimit.toString(),
             auth: token
         });
-
-        console.log(`✅ Nuevo límite enviado al dispositivo: ${newLimit} °C`, result);
-
-        // Opcional: guardar el límite en la base de datos como lectura de temperatura
-        fetch(LECTURAS_ROUTE, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify({
-                id_sensor: 1, // sensor temperatura
-                valor: parseFloat(newLimit)
-            })
-        })
-        .then(res => res.json())
-        .then(data => console.log("📤 Límite guardado como lectura:", data))
-        .catch(err => console.error("❌ Error al guardar límite como lectura:", err));
-
+        console.log(`✅ Nuevo límite enviado al dispositivo: ${newLimit} °C`);
     } catch (err) {
         console.error("❌ Error al enviar límite:", err);
     }
