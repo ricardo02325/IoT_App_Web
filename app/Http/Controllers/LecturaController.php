@@ -17,25 +17,29 @@ class LecturaController extends Controller
     {
 
         $valorMaximo = DB::table('lecturas')
-        ->join('sensores', 'lecturas.id_sensor', '=', 'sensores.id_sensor')
-        ->where('sensores.tipo', 'temperatura')
-        ->max('lecturas.valor');
+            ->join('sensores', 'lecturas.id_sensor', '=', 'sensores.id_sensor')
+            ->where('sensores.tipo', 'temperatura')
+            ->max('lecturas.valor');
         $totalSalones = Salon::count();
         $totalAlumnos = Usuario::where('tipo_usuario', 'alumno')->count();
-        $salones = Salon::with(['sensores.lecturas' => function ($q) {
-            $q->latest('fecha_hora')->limit(1);
-        }])->get();
+        $salones = Salon::with([
+            'sensores.lecturas' => function ($q) {
+                $q->latest('fecha_hora')->limit(1);
+            }
+        ])->get();
         $reportes = Reporte::latest('created_at')->take(5)->get();
 
         return view('dashboard.dashboard', compact('valorMaximo', 'totalSalones', 'totalAlumnos', 'salones', 'reportes'));
 
-    } 
+    }
 
     public function salones()
     {
-        $salones = Salon::with(['sensores.lecturas' => function ($query) {
-            $query->latest('fecha_hora')->limit(1);
-        }])->get();
+        $salones = Salon::with([
+            'sensores.lecturas' => function ($query) {
+                $query->latest('fecha_hora')->limit(1);
+            }
+        ])->get();
 
         return view('salones.salones', compact('salones'));
     }
@@ -101,5 +105,54 @@ class LecturaController extends Controller
             'message' => '✅ Lecturas simuladas guardadas exitosamente.',
             'data' => $lecturasGuardadas
         ], 201);
+    }
+    public function graficas()
+    {
+        // 🔹 Obtener lecturas recientes (últimas 10 por tipo)
+        $temperatura = DB::table('lecturas')
+            ->join('sensores', 'lecturas.id_sensor', '=', 'sensores.id_sensor')
+            ->where('sensores.tipo', 'temperatura')
+            ->orderBy('fecha_hora', 'desc')
+            ->limit(10)
+            ->pluck('lecturas.valor')
+            ->reverse()
+            ->values();
+
+        $humedad = DB::table('lecturas')
+            ->join('sensores', 'lecturas.id_sensor', '=', 'sensores.id_sensor')
+            ->where('sensores.tipo', 'humedad')
+            ->orderBy('fecha_hora', 'desc')
+            ->limit(10)
+            ->pluck('lecturas.valor')
+            ->reverse()
+            ->values();
+
+        $luminosidad = DB::table('lecturas')
+            ->join('sensores', 'lecturas.id_sensor', '=', 'sensores.id_sensor')
+            ->where('sensores.tipo', 'luminosidad')
+            ->orderBy('fecha_hora', 'desc')
+            ->limit(10)
+            ->pluck('lecturas.valor')
+            ->reverse()
+            ->values();
+
+        // 🔹 Etiquetas (horas)
+        $fechas = DB::table('lecturas')
+            ->orderBy('fecha_hora', 'desc')
+            ->limit(10)
+            ->pluck('fecha_hora')
+            ->map(fn($f) => \Carbon\Carbon::parse($f)->format('H:i'))
+            ->reverse()
+            ->values();
+
+        // 🔹 Promedios
+        $promedios = [
+            'temperatura' => round($temperatura->avg(), 1),
+            'humedad' => round($humedad->avg(), 1),
+            'luminosidad' => round($luminosidad->avg(), 1)
+        ];
+
+        // 🔹 Retornar vista
+        return view('salones.graficas', compact('fechas', 'temperatura', 'humedad', 'luminosidad', 'promedios'));
     }
 }

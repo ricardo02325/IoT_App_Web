@@ -38,6 +38,8 @@ Route::middleware(['auth'])->group(function () {
     // Tus vistas del panel de administrador
     Route::get('/inicio', [LecturaController::class, 'index'])->name('inicio');
     Route::get('/salones', [LecturaController::class, 'salones'])->name('salones');
+    Route::get('/graficas', [LecturaController::class, 'graficas'])->name(name: 'graficas');
+
 
     // ... Aquí puedes añadir todas las futuras rutas de tu panel ...
 

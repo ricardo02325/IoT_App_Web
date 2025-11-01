@@ -43,11 +43,11 @@
 <!-- NAVBAR -->
 <section id="content">
 	<nav>
-		<i class='bx bx-menu'></i>
+		<!-- <i class='bx bx-menu'></i>
 		<a href="#" class="notification">
 			<i class='bx bxs-bell'></i>
 		</a>
 		<a href="#" class="profile">
 			<img src="https://i.pinimg.com/474x/c3/14/99/c31499032ea434ddec72571e4e476647.jpg">
-		</a>
+		</a> -->
 	</nav>
