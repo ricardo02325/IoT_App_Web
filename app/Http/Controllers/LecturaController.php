@@ -6,10 +6,11 @@ use App\Models\Lectura;
 use App\Models\Usuario;
 use App\Models\Salon;
 use App\Models\Reporte;
-use App\Models\Sensor; // ✅ Importar el modelo Sensor
+use App\Models\Sensor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use App\Models\DispositivoParticle;
 
 class LecturaController extends Controller
 {
@@ -154,5 +155,14 @@ class LecturaController extends Controller
 
         // 🔹 Retornar vista
         return view('salones.graficas', compact('fechas', 'temperatura', 'humedad', 'luminosidad', 'promedios'));
+    }
+
+    public function tabla()
+    {
+        // Traer todos los salones con sus dispositivos y sensores
+        $salones = Salon::with('dispositivos.sensores.lecturas')->get();
+        $dispositivos = DispositivoParticle::all();
+
+        return view('salones.tabla', compact('salones', 'dispositivos'));
     }
 }

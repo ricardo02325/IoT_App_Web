@@ -3,7 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\LecturaController;
-// No necesitas HomeController si no lo estás usando, lo he comentado.
+use App\Http\Controllers\DispositivoParticleController;
+use App\Http\Controllers\SalonController;
 // use App\Http\Controllers\HomeController; 
 
 /*
@@ -34,11 +35,18 @@ Route::get('/', function () {
 // --- Grupo de Rutas Protegidas (Vistas para el usuario) ---
 // Solo usuarios autenticados pueden acceder aquí.
 Route::middleware(['auth'])->group(function () {
-    
+
     // Tus vistas del panel de administrador
     Route::get('/inicio', [LecturaController::class, 'index'])->name('inicio');
     Route::get('/salones', [LecturaController::class, 'salones'])->name('salones');
+    Route::post('/salones', [SalonController::class, 'store'])->name('salones.store');
     Route::get('/graficas', [LecturaController::class, 'graficas'])->name(name: 'graficas');
+    Route::get('/tabla', [LecturaController::class, 'tabla'])->name('tabla');
+    // Ruta para guardar lecturas (POST)
+    Route::post('/lecturas', [LecturaController::class, 'store'])->name('lecturas.store');
+
+    // Ruta para obtener todos los dispositivos Particle (GET)
+    Route::get('/dispositivos', [DispositivoParticleController::class, 'index'])->name('dispositivos.index');
 
 
     // ... Aquí puedes añadir todas las futuras rutas de tu panel ...

@@ -1,0 +1,154 @@
+/* ================================
+   TABLA DE SALONES Y SENSORES
+   ================================ */
+
+.page-title {
+    font-weight: 700;
+    color: #198754;
+}
+
+.container {
+    max-width: 1200px;
+}
+
+/* ---------- Toolbar ---------- */
+.toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1rem;
+}
+
+.search-input {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    transition: all 0.2s ease;
+}
+
+.search-input:focus {
+    border-color: #198754;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(25, 135, 84, 0.2);
+}
+
+.filter-select {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    background-color: #fff;
+}
+
+.btn-light {
+    border: 1px solid #ccc;
+    transition: background-color 0.2s;
+}
+
+.btn-light:hover {
+    background-color: #f8f9fa;
+}
+
+/* ---------- Tabla ---------- */
+.card {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border: none;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.table thead {
+    background-color: #198754;
+    color: white;
+}
+
+.table th {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+}
+
+.table td {
+    vertical-align: middle;
+    font-size: 0.95rem;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #f9f9f9;
+}
+
+.table-striped tbody tr:hover {
+    background-color: #eaf8f0;
+}
+
+.no-data {
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* ---------- Botón + ---------- */
+.btn-success.rounded-circle {
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: all 0.2s ease;
+}
+
+.btn-success.rounded-circle:hover {
+    background-color: #157347;
+    transform: scale(1.05);
+}
+
+/* ---------- Modal ---------- */
+.modal-content {
+    border-radius: 12px;
+    overflow: hidden;
+    border: none;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+.modal-header.bg-success {
+    background-color: #198754 !important;
+}
+
+.modal-title {
+    font-weight: 600;
+}
+
+.form-label {
+    font-weight: 500;
+    color: #333;
+}
+
+.form-control:focus {
+    border-color: #198754;
+    box-shadow: 0 0 0 2px rgba(25, 135, 84, 0.25);
+}
+
+.modal-footer .btn-light {
+    border: 1px solid #ced4da;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 768px) {
+    .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .search-input,
+    .filter-select,
+    .btn-light {
+        width: 100%;
+    }
+    .table thead {
+        font-size: 0.85rem;
+    }
+}

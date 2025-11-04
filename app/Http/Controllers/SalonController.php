@@ -4,20 +4,79 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Salon;
+use App\Models\DispositivoParticle;
 
 class SalonController extends Controller
 {
-    // Mostrar todos los salones
+    /**
+     * Mostrar todos los salones con su dispositivo Particle (si lo tienen)
+     */
     public function index()
     {
-        $salones = Salon::withCount('alumnos')->get();
-        return view('salones.salones', compact('salones'));
+        // Obtener salones junto con su dispositivo y sensores
+        $salones = Salon::with(['dispositivoParticle.sensores.lecturas'])->get();
+
+        // Obtener dispositivos Particle que aún no estén asignados a ningún salón
+        $dispositivos = DispositivoParticle::whereNull('salon_id')->get();
+
+        return view('salones.salones', compact('salones', 'dispositivos'));
     }
 
-    // Mostrar un salón específico (opcional)
+    /**
+     * Mostrar un salón específico con su dispositivo y sensores
+     */
     public function show($id)
     {
-        $salon = Salon::with('alumnos')->findOrFail($id);
+        $salon = Salon::with(['dispositivoParticle.sensores.lecturas'])->findOrFail($id);
+
         return view('salones.show', compact('salon'));
+    }
+
+    /**
+     * Crear un nuevo salón y asignarle un dispositivo Particle
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'nombre' => 'required|string|max:100',
+            'ubicacion' => 'nullable|string|max:255',
+            'dispositivo_particle_id' => 'required|exists:dispositivos_particle,id',
+        ]);
+
+        // Crear salón
+        $salon = Salon::create([
+            'nombre' => $request->nombre,
+            'ubicacion' => $request->ubicacion,
+        ]);
+
+        // Asignar dispositivo Particle al salón
+        $dispositivo = DispositivoParticle::find($request->dispositivo_particle_id);
+        $dispositivo->salon_id = $salon->id;
+        $dispositivo->save();
+
+        return redirect()->route('salones')->with('success', 'Salón creado correctamente.');
+    }
+
+    /**
+     * Permitir cambiar un dispositivo Particle de salón
+     */
+    public function asignarDispositivo(Request $request, $idSalon)
+    {
+        $request->validate([
+            'device_id' => 'required|exists:dispositivos_particle,device_id',
+        ]);
+
+        $salon = Salon::findOrFail($idSalon);
+        $dispositivo = DispositivoParticle::where('device_id', $request->device_id)->firstOrFail();
+
+        // Liberar el dispositivo anterior (si lo había)
+        if ($salon->dispositivoParticle) {
+            $salon->dispositivoParticle->update(['salon_id' => null]);
+        }
+
+        // Asignar el nuevo
+        $dispositivo->update(['salon_id' => $salon->id]);
+
+        return back()->with('success', 'Dispositivo reasignado correctamente al salón.');
     }
 }
