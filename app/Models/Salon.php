@@ -6,14 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Salon extends Model
 {
-    protected $table = 'salones'; // nombre correcto
+    protected $table = 'salones';
     protected $primaryKey = 'id_salon';
-    public $timestamps = false;
+    protected $fillable = ['nombre', 'ubicacion', 'capacidad'];
 
-    public function sensores()
-    {
-        return $this->hasMany(Sensor::class, 'id_salon', 'id_salon');
-    }
+    public $timestamps = false; // 🚫 evita el error de updated_at
 
     public function dispositivos()
     {

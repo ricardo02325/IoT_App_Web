@@ -79,4 +79,32 @@ class SalonController extends Controller
 
         return back()->with('success', 'Dispositivo reasignado correctamente al salón.');
     }
+
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'ubicacion' => 'required|string|max:255',
+            'particle_id' => 'nullable|string|max:255'
+        ]);
+
+        $salon = Salon::findOrFail($id);
+
+        // Buscar el dispositivo asociado (si existe)
+        $dispositivo = $salon->dispositivos()->first();
+
+        // Actualizar el salón
+        $salon->update([
+            'nombre' => $request->nombre,
+            'ubicacion' => $request->ubicacion,
+        ]);
+
+        // Si hay dispositivo, actualizamos su device_id
+        if ($dispositivo) {
+            $dispositivo->update(['device_id' => $request->particle_id]);
+        }
+
+        return redirect()->route('tabla')->with('success', 'Salón actualizado correctamente.');
+    }
 }

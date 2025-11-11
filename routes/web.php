@@ -42,6 +42,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/salones', [SalonController::class, 'store'])->name('salones.store');
     Route::get('/graficas', [LecturaController::class, 'graficas'])->name(name: 'graficas');
     Route::get('/tabla', [LecturaController::class, 'tabla'])->name('tabla');
+    Route::put('/salones/{id}', [SalonController::class, 'update'])->name('salones.update');
     // Ruta para guardar lecturas (POST)
     Route::post('/lecturas', [LecturaController::class, 'store'])->name('lecturas.store');
 
