@@ -17,25 +17,38 @@
 				<span class="text">Salones</span>
 			</a>
 		</li>
-		<li>
-			<!-- <a href="#">
+		<li class="{{ request()->routeIs('graficas') ? 'active' : '' }}">
+			<a href="{{ route('graficas') }}">
+				<i class='bx bx-line-chart'></i>
+				<span class="text">Gráficas</span>
+			</a>
+		</li>
+
+		<li class="{{ request()->routeIs('tabla') ? 'active' : '' }}">
+			<a href="{{ route('tabla') }}">
+				<i class='bx bx-table'></i>
+				<span class="text">Tabla</span>
+			</a>
+		</li>
+		<!-- <li>
+			<a href="#">
 				<i class='bx bxs-doughnut-chart'></i>
 				<span class="text">Estadisticas</span>
-			</a> -->
-		</li>
+			</a>
+		</li> -->
 	</ul>
 	<ul class="side-menu">
-	<li>
-    <a href="{{ route('logout') }}" class="logout" 
-       onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-        <i class='bx bxs-log-out-circle'></i>
-        <span class="text">Logout</span>
-    </a>
-</li>
+		<li>
+			<a href="{{ route('logout') }}" class="logout"
+				onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+				<i class='bx bxs-log-out-circle'></i>
+				<span class="text">Logout</span>
+			</a>
+		</li>
 
-<form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-    @csrf
-</form>
+		<form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+			@csrf
+		</form>
 	</ul>
 </section>
 <!-- /SIDEBAR -->

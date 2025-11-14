@@ -16,28 +16,31 @@ class LecturaController extends Controller
 {
     public function index()
     {
-
         $valorMaximo = DB::table('lecturas')
             ->join('sensores', 'lecturas.id_sensor', '=', 'sensores.id_sensor')
             ->where('sensores.tipo', 'temperatura')
             ->max('lecturas.valor');
+
         $totalSalones = Salon::count();
         $totalAlumnos = Usuario::where('tipo_usuario', 'alumno')->count();
+
+        // ⚡ Corregido: traer dispositivo y sus sensores
         $salones = Salon::with([
-            'sensores.lecturas' => function ($q) {
+            'dispositivoParticle.sensores.lecturas' => function ($q) {
                 $q->latest('fecha_hora')->limit(1);
             }
         ])->get();
+
         $reportes = Reporte::latest('created_at')->take(5)->get();
 
         return view('dashboard.dashboard', compact('valorMaximo', 'totalSalones', 'totalAlumnos', 'salones', 'reportes'));
-
     }
 
     public function salones()
     {
+        // ⚡ Corregido
         $salones = Salon::with([
-            'sensores.lecturas' => function ($query) {
+            'dispositivoParticle.sensores.lecturas' => function ($query) {
                 $query->latest('fecha_hora')->limit(1);
             }
         ])->get();
@@ -45,9 +48,6 @@ class LecturaController extends Controller
         return view('salones.salones', compact('salones'));
     }
 
-    /**
-     * Guarda los datos enviados desde el cliente.
-     */
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -71,9 +71,6 @@ class LecturaController extends Controller
         ], 201);
     }
 
-    /**
-     * Genera y guarda lecturas simuladas para todos los sensores.
-     */
     public function simular()
     {
         $sensores = Sensor::all();
@@ -84,15 +81,13 @@ class LecturaController extends Controller
         }
 
         foreach ($sensores as $sensor) {
-            // Generar valor simulado según tipo de sensor
             $valor = match ($sensor->tipo) {
-                'temperatura' => rand(180, 300) / 10, // 18.0 - 30.0 °C
-                'humedad' => rand(300, 800) / 10,     // 30% - 80%
-                'luminosidad' => rand(0, 1000),       // 0 - 1000 lux
+                'temperatura' => rand(180, 300) / 10,
+                'humedad' => rand(300, 800) / 10,
+                'luminosidad' => rand(0, 1000),
                 default => rand(0, 100),
             };
 
-            // Guardar la lectura simulada
             $lectura = Lectura::create([
                 'id_sensor' => $sensor->id_sensor,
                 'valor' => $valor,
@@ -107,9 +102,9 @@ class LecturaController extends Controller
             'data' => $lecturasGuardadas
         ], 201);
     }
+
     public function graficas()
     {
-        // 🔹 Obtener lecturas recientes (últimas 10 por tipo)
         $temperatura = DB::table('lecturas')
             ->join('sensores', 'lecturas.id_sensor', '=', 'sensores.id_sensor')
             ->where('sensores.tipo', 'temperatura')
@@ -137,7 +132,6 @@ class LecturaController extends Controller
             ->reverse()
             ->values();
 
-        // 🔹 Etiquetas (horas)
         $fechas = DB::table('lecturas')
             ->orderBy('fecha_hora', 'desc')
             ->limit(10)
@@ -146,21 +140,19 @@ class LecturaController extends Controller
             ->reverse()
             ->values();
 
-        // 🔹 Promedios
         $promedios = [
             'temperatura' => round($temperatura->avg(), 1),
             'humedad' => round($humedad->avg(), 1),
             'luminosidad' => round($luminosidad->avg(), 1)
         ];
 
-        // 🔹 Retornar vista
         return view('salones.graficas', compact('fechas', 'temperatura', 'humedad', 'luminosidad', 'promedios'));
     }
 
     public function tabla()
     {
-        // Traer todos los salones con sus dispositivos y sensores
-        $salones = Salon::with('dispositivos.sensores.lecturas')->get();
+        // ⚡ Corregido: traer salones con dispositivo y sensores
+        $salones = Salon::with('dispositivoParticle.sensores.lecturas')->get();
         $dispositivos = DispositivoParticle::all();
 
         return view('salones.tabla', compact('salones', 'dispositivos'));

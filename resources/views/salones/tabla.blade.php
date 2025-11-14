@@ -3,242 +3,192 @@
 @section('title', 'FIE - Tabla de Salones')
 
 @push('css')
-    <link rel="stylesheet" href="{{ asset('css/tabla.css') }}">
-    <style>
-        /* Estilos generales */
-        .no-data {
-            color: #888;
-            font-style: italic;
-        }
-
-        .options-btn {
-            cursor: pointer;
-            color: #0d6efd;
-            /* azul */
-        }
-
-        .modal-header.bg-primary {
-            background-color: #0d6efd !important;
-        }
-
-        .btn-primary {
-            background-color: #0d6efd;
-            border-color: #0d6efd;
-        }
-
-        .btn-primary:hover {
-            background-color: #0b5ed7;
-            border-color: #0a58ca;
-        }
-
-        .form-label {
-            font-weight: 500;
-        }
-
-        #nombre-error,
-        #particle-error,
-        #ubicacion-error {
-            color: red;
-            font-size: 0.875em;
-            display: none;
-        }
-    </style>
+<link rel="stylesheet" href="{{ asset('css/tabla.css') }}">
+<style>
+    /* Estilos generales */
+    .no-data { color: #888; font-style: italic; }
+    .options-btn { cursor: pointer; color: #0d6efd; }
+    .modal-header.bg-primary { background-color: #0d6efd !important; }
+    .btn-primary { background-color: #0d6efd; border-color: #0d6efd; }
+    .btn-primary:hover { background-color: #0b5ed7; border-color: #0a58ca; }
+    .form-label { font-weight: 500; }
+    #nombre-error, #particle-error, #ubicacion-error { color: red; font-size: 0.875em; display: none; }
+</style>
 @endpush
 
 @section('content')
-    @if(session('success'))
-        <div class="alert alert-success mt-3">
-            {{ session('success') }}
-        </div>
-    @endif
-    <div class="container mt-5 mb-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="text-center page-title mb-0">🏫 Tabla de Salones y Sensores</h2>
+@if(session('success'))
+<div class="alert alert-success mt-3">{{ session('success') }}</div>
+@endif
 
-            <!-- Botón + para abrir el modal -->
-            <button class="btn btn-primary rounded-circle shadow-sm" data-bs-toggle="modal" data-bs-target="#addSalonModal"
-                title="Agregar nuevo salón">
-                <i class="bi bi-plus-lg"></i>
-            </button>
-        </div>
+<div class="container mt-5 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-center page-title mb-0">🏫 Tabla de Salones y Sensores</h2>
+        <button class="btn btn-primary rounded-circle shadow-sm" data-bs-toggle="modal" data-bs-target="#addSalonModal" title="Agregar nuevo salón">
+            <i class="bi bi-plus-lg"></i>
+        </button>
+    </div>
 
-        <!-- Barra de herramientas: búsqueda y filtro -->
-        <div class="toolbar mb-3">
-            <input id="tableSearch" class="search-input" type="search"
-                placeholder="Buscar por salón, sensor o ubicación...">
-            <select id="typeFilter" class="filter-select">
-                <option value="">Filtrar por tipo (Todos)</option>
-                <option value="temperatura">Temperatura</option>
-                <option value="humedad">Humedad</option>
-                <option value="luz">Luz</option>
-                <option value="gas">Gas</option>
-            </select>
-            <button id="clearFilters" class="btn btn-light">Limpiar</button>
-        </div>
+    <div class="toolbar mb-3">
+        <input id="tableSearch" class="search-input" type="search" placeholder="Buscar por salón, sensor o ubicación...">
+        <select id="typeFilter" class="filter-select">
+            <option value="">Filtrar por tipo (Todos)</option>
+            <option value="temperatura">Temperatura</option>
+            <option value="humedad">Humedad</option>
+            <option value="luz">Luz</option>
+            <option value="gas">Gas</option>
+        </select>
+        <button id="clearFilters" class="btn btn-light">Limpiar</button>
+    </div>
 
-        <!-- Tarjeta con la tabla -->
-        <div class="card">
-            <div class="table-responsive">
-                <table id="salonesTable" class="table table-striped align-middle">
-                    <thead>
+    <div class="card">
+        <div class="table-responsive">
+            <table id="salonesTable" class="table table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Nombre del Salón</th>
+                        <th>Ubicación</th>
+                        <th>Dispositivo Particle</th>
+                        <th>Tipo</th>
+                        <th>Última Lectura</th>
+                        <th>Fecha / Hora</th>
+                        <th>Opciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($salones as $index => $salon)
+                        @php
+                            $dispositivo = $salon->dispositivoParticle;
+                            $lecturaTemp = $dispositivo?->sensores->where('tipo', 'temperatura')->first()?->lecturas->first();
+                            $lecturaHum = $dispositivo?->sensores->where('tipo', 'humedad')->first()?->lecturas->first();
+                        @endphp
                         <tr>
-                            <th>#</th>
-                            <th>Nombre del Salón</th>
-                            <th>Ubicación</th>
-                            <th>Dispositivo Particle</th>
-                            <th>Tipo</th>
-                            <th>Última Lectura</th>
-                            <th>Fecha / Hora</th>
-                            <th>Opciones</th>
+                            <td>{{ $index + 1 }}</td>
+                            <td><strong>{{ $salon->nombre }}</strong></td>
+                            <td>{{ $salon->ubicacion ?? 'Sin ubicación' }}</td>
+                            <td>{{ $dispositivo?->device_id ?? 'No asignado' }}</td>
+                            <td>Temperatura / Humedad</td>
+                            <td>
+                                @if ($lecturaTemp)
+                                    Temp: {{ number_format($lecturaTemp->valor, 2) }}°C
+                                @else
+                                    <span class="no-data">No hay lectura temp</span>
+                                @endif
+                                <br>
+                                @if ($lecturaHum)
+                                    Hum: {{ number_format($lecturaHum->valor, 2) }}%
+                                @else
+                                    <span class="no-data">No hay lectura hum</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if ($lecturaTemp || $lecturaHum)
+                                    {{ \Carbon\Carbon::parse($lecturaTemp?->fecha_hora ?? $lecturaHum?->fecha_hora)->format('d/m/Y H:i') }}
+                                @else
+                                    <span class="no-data">-</span>
+                                @endif
+                            </td>
+                            <td>
+                                <span class="options-btn" data-bs-toggle="modal" data-bs-target="#editSalonModal{{ $salon->id }}" title="Editar salón">
+                                    <i class="bi bi-pencil-square"></i>
+                                </span>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($salones as $index => $salon)
-                            @php
-                                $dispositivo = $salon->dispositivos->first();
-                                $lecturaTemp = $dispositivo?->sensores->where('tipo', 'temperatura')->first()?->lecturas->first();
-                                $lecturaHum = $dispositivo?->sensores->where('tipo', 'humedad')->first()?->lecturas->first();
-                            @endphp
-                            <tr>
-                                <td>{{ $index + 1 }}</td>
-                                <td><strong>{{ $salon->nombre }}</strong></td>
-                                <td>{{ $salon->ubicacion ?? 'Sin ubicación' }}</td>
-                                <td>{{ $dispositivo->device_id ?? 'No asignado' }}</td>
-                                <td>Temperatura / Humedad</td>
-                                <td>
-                                    @if ($lecturaTemp)
-                                        Temp: {{ number_format($lecturaTemp->valor, 2) }}°C
-                                    @else
-                                        <span class="no-data">No hay lectura temp</span>
-                                    @endif
-                                    <br>
-                                    @if ($lecturaHum)
-                                        Hum: {{ number_format($lecturaHum->valor, 2) }}%
-                                    @else
-                                        <span class="no-data">No hay lectura hum</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if ($lecturaTemp || $lecturaHum)
-                                        {{ \Carbon\Carbon::parse($lecturaTemp?->fecha_hora ?? $lecturaHum?->fecha_hora)->format('d/m/Y H:i') }}
-                                    @else
-                                        <span class="no-data">-</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    <!-- Botón de editar -->
-                                    <span class="options-btn" data-bs-toggle="modal"
-                                        data-bs-target="#editSalonModal{{ $salon->id }}" title="Editar salón">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </span>
-                                </td>
-                            </tr>
 
-                            <!-- Modal para editar salón -->
-                            <div class="modal fade" id="editSalonModal{{ $salon->id }}" tabindex="-1"
-                                aria-labelledby="editSalonLabel{{ $salon->id }}" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <form action="{{ route('salones.update', $salon->id_salon ?? $salon->id) }}" method="POST">
-                                        @csrf
-                                        @method('PUT')
-                                        <div class="modal-content">
-                                            <div class="modal-header bg-primary text-white">
-                                                <h5 class="modal-title">✏️ Editar {{ $salon->nombre }}</h5>
-                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                                                    aria-label="Cerrar"></button>
+                        <!-- Modal editar salón + dispositivo -->
+                        <div class="modal fade" id="editSalonModal{{ $salon->id }}" tabindex="-1" aria-labelledby="editSalonLabel{{ $salon->id }}" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <form action="{{ route('salones.update', $salon->id_salon ?? $salon->id) }}" method="POST">
+                                    @csrf
+                                    @method('PUT')
+                                    <div class="modal-content">
+                                        <div class="modal-header bg-primary text-white">
+                                            <h5 class="modal-title">✏️ Editar {{ $salon->nombre }}</h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <label class="form-label">Nombre del salón</label>
+                                                <input type="text" name="nombre" class="form-control" value="{{ $salon->nombre }}" required>
                                             </div>
-                                            <div class="modal-body">
-                                                <div class="mb-3">
-                                                    <label class="form-label">Nombre del salón</label>
-                                                    <input type="text" name="nombre" class="form-control"
-                                                        value="{{ $salon->nombre }}" required>
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label class="form-label">Ubicación</label>
-                                                    <select name="ubicacion" class="form-control" required>
-                                                        <option value="5D" {{ $salon->ubicacion == '5D' ? 'selected' : '' }}>Salón
-                                                            5D - Edificio A</option>
-                                                        <option value="LSE" {{ $salon->ubicacion == 'LSE' ? 'selected' : '' }}>
-                                                            Laboratorio de Sistemas Eléctricos de Potencia (LSE)</option>
-                                                        <option value="LEM" {{ $salon->ubicacion == 'LEM' ? 'selected' : '' }}>
-                                                            Laboratorio de Electricidad y Magnetismo (LEM)</option>
-                                                        <option value="LIOT" {{ $salon->ubicacion == 'LIOT' ? 'selected' : '' }}>
-                                                            Laboratorio de Internet de las Cosas (LIOT)</option>
-                                                        <option value="D" {{ $salon->ubicacion == 'D' ? 'selected' : '' }}>
-                                                            Dirección (D)</option>
-                                                        <option value="LM" {{ $salon->ubicacion == 'LM' ? 'selected' : '' }}>
-                                                            Laboratorio de Mecánica (LM)</option>
-                                                    </select>
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label class="form-label">ID del dispositivo Particle</label>
-                                                    <input type="text" name="particle_id" class="form-control"
-                                                        value="{{ $dispositivo->device_id ?? '' }}">
-                                                </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Ubicación</label>
+                                                <select name="ubicacion" class="form-control" required>
+                                                    <option value="5D" {{ $salon->ubicacion == '5D' ? 'selected' : '' }}>Salón 5D - Edificio A</option>
+                                                    <option value="LSE" {{ $salon->ubicacion == 'LSE' ? 'selected' : '' }}>Laboratorio LSE</option>
+                                                    <option value="LEM" {{ $salon->ubicacion == 'LEM' ? 'selected' : '' }}>Laboratorio LEM</option>
+                                                    <option value="LIOT" {{ $salon->ubicacion == 'LIOT' ? 'selected' : '' }}>Laboratorio LIOT</option>
+                                                    <option value="D" {{ $salon->ubicacion == 'D' ? 'selected' : '' }}>Dirección</option>
+                                                    <option value="LM" {{ $salon->ubicacion == 'LM' ? 'selected' : '' }}>Laboratorio LM</option>
+                                                </select>
                                             </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-light"
-                                                    data-bs-dismiss="modal">Cancelar</button>
-                                                <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                                            <div class="mb-3">
+                                                <label class="form-label">ID del dispositivo Particle</label>
+                                                <input type="text" name="particle_id" class="form-control" value="{{ $dispositivo?->device_id ?? '' }}">
                                             </div>
                                         </div>
-                                    </form>
-                                </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                                            <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                                        </div>
+                                    </div>
+                                </form>
                             </div>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
+                        </div>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
     </div>
+</div>
 
-    <!-- Modal para agregar nuevo salón -->
-    <div class="modal fade" id="addSalonModal" tabindex="-1" aria-labelledby="addSalonLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <form id="addSalonForm">
-                <div class="modal-content">
-                    <div class="modal-header bg-primary text-white">
-                        <h5 class="modal-title" id="addSalonLabel">➕ Agregar nuevo salón</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                            aria-label="Cerrar"></button>
+<!-- Modal agregar nuevo salón -->
+<div class="modal fade" id="addSalonModal" tabindex="-1" aria-labelledby="addSalonLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form id="addSalonForm">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="addSalonLabel">➕ Agregar nuevo salón</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="nombreSalon" class="form-label">Nombre del salón</label>
+                        <input type="text" id="nombreSalon" name="nombre" class="form-control" required>
+                        <div id="nombre-error"></div>
                     </div>
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="nombreSalon" class="form-label">Nombre del salón</label>
-                            <input type="text" id="nombreSalon" name="nombre" class="form-control" required>
-                            <div id="nombre-error"></div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="ubicacionSalon" class="form-label">Ubicación</label>
-                            <select id="ubicacionSalon" name="ubicacion" class="form-control" required>
-                                <option value="">Selecciona un área</option>
-                                <option value="5D">Salón 5D - Edificio A</option>
-                                <option value="LSE">Laboratorio de Sistemas Eléctricos de Potencia (LSE)</option>
-                                <option value="LEM">Laboratorio de Electricidad y Magnetismo (LEM)</option>
-                                <option value="LIOT">Laboratorio de Internet de las Cosas (LIOT)</option>
-                                <option value="D">Dirección (D)</option>
-                                <option value="LM">Laboratorio de Mecánica (LM)</option>
-                            </select>
-                            <div id="ubicacion-error"></div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="particleID" class="form-label">ID del dispositivo Particle</label>
-                            <input type="text" id="particleID" name="particle_id" class="form-control" required>
-                            <div id="particle-error"></div>
-                        </div>
+                    <div class="mb-3">
+                        <label for="ubicacionSalon" class="form-label">Ubicación</label>
+                        <select id="ubicacionSalon" name="ubicacion" class="form-control" required>
+                            <option value="">Selecciona un área</option>
+                            <option value="5D">Salón 5D - Edificio A</option>
+                            <option value="LSE">Laboratorio LSE</option>
+                            <option value="LEM">Laboratorio LEM</option>
+                            <option value="LIOT">Laboratorio LIOT</option>
+                            <option value="D">Dirección</option>
+                            <option value="LM">Laboratorio LM</option>
+                        </select>
+                        <div id="ubicacion-error"></div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary" id="guardarSalonBtn">Guardar salón</button>
+                    <div class="mb-3">
+                        <label for="particleID" class="form-label">ID del dispositivo Particle</label>
+                        <input type="text" id="particleID" name="particle_id" class="form-control" required>
+                        <div id="particle-error"></div>
                     </div>
                 </div>
-            </form>
-        </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="guardarSalonBtn">Guardar salón</button>
+                </div>
+            </div>
+        </form>
     </div>
+</div>
 
-    @push('scripts')
-        <script>
-            // Búsqueda y filtro
+@push('scripts')
+<script>
+                // Búsqueda y filtro
             const table = document.getElementById('salonesTable');
             const searchInput = document.getElementById('tableSearch');
             const typeFilter = document.getElementById('typeFilter');
@@ -408,6 +358,6 @@
                     updateGuardarState();
                 }
             });
-        </script>
-    @endpush
+</script>
+@endpush
 @endsection

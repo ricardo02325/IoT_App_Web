@@ -10,7 +10,13 @@ class Salon extends Model
     protected $primaryKey = 'id_salon';
     protected $fillable = ['nombre', 'ubicacion', 'capacidad'];
 
-    public $timestamps = false; // 🚫 evita el error de updated_at
+    public $timestamps = false;
+
+    // Relación con dispositivo Particle (1:1)
+    public function dispositivoParticle()
+    {
+        return $this->hasOne(DispositivoParticle::class, 'id_salon', 'id_salon');
+    }
 
     public function dispositivos()
     {
