@@ -146,7 +146,9 @@
 <!-- Modal agregar nuevo salón -->
 <div class="modal fade" id="addSalonModal" tabindex="-1" aria-labelledby="addSalonLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <form id="addSalonForm">
+        <!-- Usamos route() de Laravel para enviar el formulario -->
+        <form id="addSalonForm" method="POST" action="{{ route('salones.store') }}">
+            @csrf <!-- Token CSRF necesario -->
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title" id="addSalonLabel">➕ Agregar nuevo salón</h5>
@@ -156,7 +158,7 @@
                     <div class="mb-3">
                         <label for="nombreSalon" class="form-label">Nombre del salón</label>
                         <input type="text" id="nombreSalon" name="nombre" class="form-control" required>
-                        <div id="nombre-error"></div>
+                        <div id="nombre-error" class="text-danger"></div>
                     </div>
                     <div class="mb-3">
                         <label for="ubicacionSalon" class="form-label">Ubicación</label>
@@ -169,12 +171,12 @@
                             <option value="D">Dirección</option>
                             <option value="LM">Laboratorio LM</option>
                         </select>
-                        <div id="ubicacion-error"></div>
+                        <div id="ubicacion-error" class="text-danger"></div>
                     </div>
                     <div class="mb-3">
                         <label for="particleID" class="form-label">ID del dispositivo Particle</label>
-                        <input type="text" id="particleID" name="particle_id" class="form-control" required>
-                        <div id="particle-error"></div>
+                        <input type="text" id="particleID" name="device_id" class="form-control" required>
+                        <div id="particle-error" class="text-danger"></div>
                     </div>
                 </div>
                 <div class="modal-footer">

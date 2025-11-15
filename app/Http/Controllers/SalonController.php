@@ -37,24 +37,27 @@ class SalonController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'nombre' => 'required|string|max:100',
-            'ubicacion' => 'nullable|string|max:255',
-            'dispositivo_particle_id' => 'required|exists:dispositivos_particle,id',
+        // Validación
+        $validated = $request->validate([
+            'nombre' => 'required|string|max:255',
+            'ubicacion' => 'required|string|max:50',
+            'device_id' => 'required|string|max:255',
         ]);
 
         // Crear salón
-        $salon = Salon::create([
-            'nombre' => $request->nombre,
-            'ubicacion' => $request->ubicacion,
-        ]);
+        $salon = new Salon();
+        $salon->nombre = $validated['nombre'];
+        $salon->ubicacion = $validated['ubicacion'];
+        $salon->save();
 
-        // Asignar dispositivo Particle al salón
-        $dispositivo = DispositivoParticle::find($request->dispositivo_particle_id);
-        $dispositivo->salon_id = $salon->id;
+        // Crear dispositivo Particle relacionado
+        $dispositivo = new DispositivoParticle();
+        $dispositivo->id_salon = $salon->id_salon; // clave primaria del salón
+        $dispositivo->device_id = $validated['device_id'];
+        $dispositivo->nombre = 'Principal';
         $dispositivo->save();
-
-        return redirect()->route('salones')->with('success', 'Salón creado correctamente.');
+        
+        return redirect()->route('tabla')->with('success', 'Salón creado');
     }
 
     /**
