@@ -1,49 +1,44 @@
-@extends('layouts.app')
+@extends('layouts.auth')
 
 @section('content')
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">{{ __('Confirm Password') }}</div>
+<div class="login-container">
+    <form method="POST" action="{{ route('password.confirm') }}">
+        @csrf
 
-                <div class="card-body">
-                    {{ __('Please confirm your password before continuing.') }}
+        <div class="login-box">
+            <div class="login-title">
+                {{ __('Confirmar Contraseña') }}
+            </div>
 
-                    <form method="POST" action="{{ route('password.confirm') }}">
-                        @csrf
+            <div style="color: white; font-size: 0.9em; text-align: center; margin-bottom: 20px;">
+                Por seguridad, por favor confirma tu contraseña para continuar.
+            </div>
 
-                        <div class="row mb-3">
-                            <label for="password" class="col-md-4 col-form-label text-md-end">{{ __('Password') }}</label>
+            {{-- CAMPO DE CONTRASEÑA --}}
+            <div class="input-group">
+                <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="current-password" placeholder="Contraseña">
+                <i class='bx bx-show icon toggle-password'></i>
+            </div>
+            @error('password')
+                <span class="invalid-feedback" role="alert" style="color: white; display: block; margin-bottom: 15px;">
+                    <strong>{{ $message }}</strong>
+                </span>
+            @enderror
 
-                            <div class="col-md-6">
-                                <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="current-password">
+            {{-- BOTÓN DE CONFIRMAR --}}
+            <button type="submit" class="login-button">
+                {{ __('Confirmar Contraseña') }}
+            </button>
 
-                                @error('password')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="row mb-0">
-                            <div class="col-md-8 offset-md-4">
-                                <button type="submit" class="btn btn-primary">
-                                    {{ __('Confirm Password') }}
-                                </button>
-
-                                @if (Route::has('password.request'))
-                                    <a class="btn btn-link" href="{{ route('password.request') }}">
-                                        {{ __('Forgot Your Password?') }}
-                                    </a>
-                                @endif
-                            </div>
-                        </div>
-                    </form>
-                </div>
+            {{-- ENLACE PARA OLVIDAR CONTRASEÑA --}}
+            <div class="register-text" style="text-align: center; margin-top: 20px;">
+                @if (Route::has('password.request'))
+                    <a href="{{ route('password.request') }}" style="color: white; text-decoration: none; font-size: 0.9em;">
+                        ¿Olvidaste tu contraseña?
+                    </a>
+                @endif
             </div>
         </div>
-    </div>
+    </form>
 </div>
 @endsection

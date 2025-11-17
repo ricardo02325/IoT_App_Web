@@ -8,10 +8,21 @@
         @csrf
 
         <div class="login-box">
+            {{-- =============================================== --}}
+            {{-- ==      TITULO DEL LOGIN (LO QUE FALTABA)    == --}}
+            {{-- =============================================== --}}
             <div class="login-title">
-                {{-- La función __() es para traducciones, mostrará "Login" --}}
                 {{ __('Login') }}
             </div>
+            {{-- =============================================== --}}
+
+            {{-- Aquí va el mensaje de éxito/error, si lo quieres --}}
+            @if (session('status'))
+                <div id="status-alert" style="padding: 15px; background-color: #28a745; color: white; border-radius: 5px; margin-bottom: 20px; text-align: center; font-weight: bold; transition: opacity 0.5s ease-out;">
+                    {{ session('status') }}
+                </div>
+            @endif
+            {{-- Fin del mensaje --}}
 
             {{-- CAMPO DE CORREO ELECTRÓNICO --}}
                 <div class="input-group">
@@ -38,9 +49,35 @@
             @enderror
 
             
+            {{-- =============================================== --}}
+            {{-- ==      ENLACE DE RECUPERAR CONTRASEÑA       == --}}
+            {{-- =============================================== --}}
+            <div style="text-align: right; margin-bottom: 15px; width: 100%;">
+                @if (Route::has('password.request'))
+                    <a href="{{ route('password.request') }}" style="color: white; text-decoration: none; font-size: 0.9em;">
+                        ¿Olvidaste tu contraseña?
+                    </a>
+                @endif
+            </div>
+            {{-- =============================================== --}}
+
+
             {{-- Se asegura que el botón sea de tipo "submit" para enviar el formulario --}}
             <button type="submit" class="login-button">{{ __('Iniciar sesión') }}</button>
         </div>
     </form>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const alert = document.getElementById('status-alert');
+        if (alert) {
+            setTimeout(() => {
+                alert.style.opacity = '0';
+                setTimeout(() => {
+                    alert.style.display = 'none';
+                }, 500); // Coincide con la duración de la transición
+            }, 8000); // 3 segundos antes de desaparecer
+        }
+    });
+</script>
 @endsection
