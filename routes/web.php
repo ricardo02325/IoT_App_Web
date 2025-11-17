@@ -16,7 +16,7 @@ use App\Http\Controllers\LecturaController;
 
 // --- Rutas de Autenticación ---
 // Crea /login, /logout, /register, etc.
-Auth::routes();
+Auth::routes(['register' => false]);
 
 
 // --- Redirección Principal ---
