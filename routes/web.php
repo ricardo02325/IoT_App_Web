@@ -17,7 +17,7 @@ use App\Http\Controllers\SalonController;
 
 // --- Rutas de Autenticación ---
 // Crea /login, /logout, /register, etc.
-Auth::routes();
+Auth::routes(['register' => false]);
 
 
 // --- Redirección Principal ---
