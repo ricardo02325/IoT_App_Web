@@ -5,20 +5,30 @@
 @push('css')
 <link rel="stylesheet" href="{{ asset('css/tabla.css') }}">
 <style>
-    /* Estilos generales */
     .no-data { color: #888; font-style: italic; }
     .options-btn { cursor: pointer; color: #0d6efd; }
+    .options-btn.delete { color: #dc3545; }
+    .options-btn:hover { opacity: 0.8; }
     .modal-header.bg-primary { background-color: #0d6efd !important; }
+    .modal-header.bg-danger { background-color: #dc3545 !important; }
     .btn-primary { background-color: #0d6efd; border-color: #0d6efd; }
     .btn-primary:hover { background-color: #0b5ed7; border-color: #0a58ca; }
+    .btn-danger { background-color: #dc3545; border-color: #dc3545; }
+    .btn-danger:hover { background-color: #bb2d3b; border-color: #b02a37; }
     .form-label { font-weight: 500; }
-    #nombre-error, #particle-error, #ubicacion-error { color: red; font-size: 0.875em; display: none; }
+    .is-invalid { border-color: #dc3545; }
+    .invalid-feedback { display: block; color: #dc3545; font-size: 0.875em; }
+    .alert ul { margin-bottom: 0; }
 </style>
 @endpush
 
 @section('content')
 @if(session('success'))
 <div class="alert alert-success mt-3">{{ session('success') }}</div>
+@endif
+
+@if(session('error'))
+<div class="alert alert-danger mt-3">{{ session('error') }}</div>
 @endif
 
 <div class="container mt-5 mb-5">
@@ -28,6 +38,17 @@
             <i class="bi bi-plus-lg"></i>
         </button>
     </div>
+
+    @if($errors->any())
+    <div class="alert alert-danger">
+        <strong>Por favor, corrige los siguientes errores:</strong>
+        <ul>
+            @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
 
     <div class="toolbar mb-3">
         <input id="tableSearch" class="search-input" type="search" placeholder="Buscar por salón, sensor o ubicación...">
@@ -90,14 +111,17 @@
                                 @endif
                             </td>
                             <td>
-                                <span class="options-btn" data-bs-toggle="modal" data-bs-target="#editSalonModal{{ $salon->id }}" title="Editar salón">
+                                <span class="options-btn" data-bs-toggle="modal" data-bs-target="#editSalonModal{{ $salon->id_salon ?? $salon->id }}" title="Editar salón">
                                     <i class="bi bi-pencil-square"></i>
+                                </span>
+                                <span class="options-btn delete ms-2" data-bs-toggle="modal" data-bs-target="#deleteSalonModal{{ $salon->id_salon ?? $salon->id }}" title="Eliminar salón">
+                                    <i class="bi bi-trash"></i>
                                 </span>
                             </td>
                         </tr>
 
-                        <!-- Modal editar salón + dispositivo -->
-                        <div class="modal fade" id="editSalonModal{{ $salon->id }}" tabindex="-1" aria-labelledby="editSalonLabel{{ $salon->id }}" aria-hidden="true">
+                        <!-- Modal editar salón -->
+                        <div class="modal fade" id="editSalonModal{{ $salon->id_salon ?? $salon->id }}" tabindex="-1" aria-labelledby="editSalonLabel{{ $salon->id_salon ?? $salon->id }}" aria-hidden="true">
                             <div class="modal-dialog">
                                 <form action="{{ route('salones.update', $salon->id_salon ?? $salon->id) }}" method="POST">
                                     @csrf
@@ -110,27 +134,63 @@
                                         <div class="modal-body">
                                             <div class="mb-3">
                                                 <label class="form-label">Nombre del salón</label>
-                                                <input type="text" name="nombre" class="form-control" value="{{ $salon->nombre }}" required>
+                                                <input type="text" name="nombre" class="form-control @error('nombre', "edit{$salon->id_salon}") is-invalid @enderror" value="{{ old('nombre', $salon->nombre) }}" required>
+                                                @error('nombre', "edit{$salon->id_salon}")
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
                                             </div>
                                             <div class="mb-3">
                                                 <label class="form-label">Ubicación</label>
-                                                <select name="ubicacion" class="form-control" required>
-                                                    <option value="5D" {{ $salon->ubicacion == '5D' ? 'selected' : '' }}>Salón 5D - Edificio A</option>
-                                                    <option value="LSE" {{ $salon->ubicacion == 'LSE' ? 'selected' : '' }}>Laboratorio LSE</option>
-                                                    <option value="LEM" {{ $salon->ubicacion == 'LEM' ? 'selected' : '' }}>Laboratorio LEM</option>
-                                                    <option value="LIOT" {{ $salon->ubicacion == 'LIOT' ? 'selected' : '' }}>Laboratorio LIOT</option>
-                                                    <option value="D" {{ $salon->ubicacion == 'D' ? 'selected' : '' }}>Dirección</option>
-                                                    <option value="LM" {{ $salon->ubicacion == 'LM' ? 'selected' : '' }}>Laboratorio LM</option>
+                                                <select name="ubicacion" class="form-control @error('ubicacion', "edit{$salon->id_salon}") is-invalid @enderror" required>
+                                                    <option value="5D" {{ old('ubicacion', $salon->ubicacion) == '5D' ? 'selected' : '' }}>Salón 5D - Edificio A</option>
+                                                    <option value="LSE" {{ old('ubicacion', $salon->ubicacion) == 'LSE' ? 'selected' : '' }}>Laboratorio LSE</option>
+                                                    <option value="LEM" {{ old('ubicacion', $salon->ubicacion) == 'LEM' ? 'selected' : '' }}>Laboratorio LEM</option>
+                                                    <option value="LIOT" {{ old('ubicacion', $salon->ubicacion) == 'LIOT' ? 'selected' : '' }}>Laboratorio LIOT</option>
+                                                    <option value="D" {{ old('ubicacion', $salon->ubicacion) == 'D' ? 'selected' : '' }}>Dirección</option>
+                                                    <option value="LM" {{ old('ubicacion', $salon->ubicacion) == 'LM' ? 'selected' : '' }}>Laboratorio LM</option>
                                                 </select>
+                                                @error('ubicacion', "edit{$salon->id_salon}")
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
                                             </div>
                                             <div class="mb-3">
                                                 <label class="form-label">ID del dispositivo Particle</label>
-                                                <input type="text" name="particle_id" class="form-control" value="{{ $dispositivo?->device_id ?? '' }}">
+                                                <input type="text" name="particle_id" class="form-control particle-input @error('particle_id', "edit{$salon->id_salon}") is-invalid @enderror" value="{{ old('particle_id', $dispositivo?->device_id ?? '') }}" data-salon-id="{{ $salon->id_salon ?? $salon->id }}">
+                                                @error('particle_id', "edit{$salon->id_salon}")
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
                                             </div>
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
                                             <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Modal eliminar salón -->
+                        <div class="modal fade" id="deleteSalonModal{{ $salon->id_salon ?? $salon->id }}" tabindex="-1" aria-labelledby="deleteSalonLabel{{ $salon->id_salon ?? $salon->id }}" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <form action="{{ route('salones.destroy', $salon->id_salon ?? $salon->id) }}" method="POST">
+                                    @csrf
+                                    @method('DELETE')
+                                    <div class="modal-content">
+                                        <div class="modal-header bg-danger text-white">
+                                            <h5 class="modal-title">🗑️ Eliminar Salón</h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>¿Estás seguro de que deseas eliminar el salón <strong>"{{ $salon->nombre }}"</strong>?</p>
+                                            <p class="text-danger mb-0">
+                                                <i class="bi bi-exclamation-triangle-fill"></i>
+                                                <strong>Advertencia:</strong> Esta acción no se puede deshacer y se eliminarán todos los datos asociados al salón.
+                                            </p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                                            <button type="submit" class="btn btn-danger">Eliminar Salón</button>
                                         </div>
                                     </div>
                                 </form>
@@ -146,9 +206,8 @@
 <!-- Modal agregar nuevo salón -->
 <div class="modal fade" id="addSalonModal" tabindex="-1" aria-labelledby="addSalonLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <!-- Usamos route() de Laravel para enviar el formulario -->
         <form id="addSalonForm" method="POST" action="{{ route('salones.store') }}">
-            @csrf <!-- Token CSRF necesario -->
+            @csrf
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title" id="addSalonLabel">➕ Agregar nuevo salón</h5>
@@ -157,26 +216,32 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="nombreSalon" class="form-label">Nombre del salón</label>
-                        <input type="text" id="nombreSalon" name="nombre" class="form-control" required>
-                        <div id="nombre-error" class="text-danger"></div>
+                        <input type="text" id="nombreSalon" name="nombre" class="form-control @error('nombre') is-invalid @enderror" value="{{ old('nombre') }}" required>
+                        @error('nombre')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="mb-3">
                         <label for="ubicacionSalon" class="form-label">Ubicación</label>
-                        <select id="ubicacionSalon" name="ubicacion" class="form-control" required>
+                        <select id="ubicacionSalon" name="ubicacion" class="form-control @error('ubicacion') is-invalid @enderror" required>
                             <option value="">Selecciona un área</option>
-                            <option value="5D">Salón 5D - Edificio A</option>
-                            <option value="LSE">Laboratorio LSE</option>
-                            <option value="LEM">Laboratorio LEM</option>
-                            <option value="LIOT">Laboratorio LIOT</option>
-                            <option value="D">Dirección</option>
-                            <option value="LM">Laboratorio LM</option>
+                            <option value="5D" {{ old('ubicacion') == '5D' ? 'selected' : '' }}>Salón 5D - Edificio A</option>
+                            <option value="LSE" {{ old('ubicacion') == 'LSE' ? 'selected' : '' }}>Laboratorio LSE</option>
+                            <option value="LEM" {{ old('ubicacion') == 'LEM' ? 'selected' : '' }}>Laboratorio LEM</option>
+                            <option value="LIOT" {{ old('ubicacion') == 'LIOT' ? 'selected' : '' }}>Laboratorio LIOT</option>
+                            <option value="D" {{ old('ubicacion') == 'D' ? 'selected' : '' }}>Dirección</option>
+                            <option value="LM" {{ old('ubicacion') == 'LM' ? 'selected' : '' }}>Laboratorio LM</option>
                         </select>
-                        <div id="ubicacion-error" class="text-danger"></div>
+                        @error('ubicacion')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="mb-3">
                         <label for="particleID" class="form-label">ID del dispositivo Particle</label>
-                        <input type="text" id="particleID" name="device_id" class="form-control" required>
-                        <div id="particle-error" class="text-danger"></div>
+                        <input type="text" id="particleID" name="device_id" class="form-control particle-input @error('device_id') is-invalid @enderror" value="{{ old('device_id') }}" required>
+                        @error('device_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -188,178 +253,152 @@
     </div>
 </div>
 
+<!-- Modal de advertencia para ID duplicado -->
+<div class="modal fade" id="duplicateParticleModal" tabindex="-1" aria-labelledby="duplicateParticleLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title" id="duplicateParticleLabel">⚠️ ID de Particle Duplicado</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <p>El ID del dispositivo Particle <strong id="duplicateParticleId"></strong> ya está registrado en el sistema.</p>
+                <p>Por favor, ingrese un ID diferente.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Entendido</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @push('scripts')
 <script>
-                // Búsqueda y filtro
-            const table = document.getElementById('salonesTable');
-            const searchInput = document.getElementById('tableSearch');
-            const typeFilter = document.getElementById('typeFilter');
-            const clearBtn = document.getElementById('clearFilters');
+    // Búsqueda y filtro
+    const table = document.getElementById('salonesTable');
+    const searchInput = document.getElementById('tableSearch');
+    const typeFilter = document.getElementById('typeFilter');
+    const clearBtn = document.getElementById('clearFilters');
 
-            searchInput.addEventListener('input', function () {
-                const filter = searchInput.value.toLowerCase();
-                Array.from(table.tBodies[0].rows).forEach(row => {
-                    row.style.display = row.textContent.toLowerCase().includes(filter) ? '' : 'none';
-                });
-            });
+    searchInput.addEventListener('input', function () {
+        const filter = searchInput.value.toLowerCase();
+        Array.from(table.tBodies[0].rows).forEach(row => {
+            row.style.display = row.textContent.toLowerCase().includes(filter) ? '' : 'none';
+        });
+    });
 
-            typeFilter.addEventListener('change', function () {
-                const value = typeFilter.value.toLowerCase();
-                Array.from(table.tBodies[0].rows).forEach(row => {
-                    if (!value) row.style.display = '';
-                    else row.style.display = row.cells[4].textContent.toLowerCase().includes(value) ? '' : 'none';
-                });
-            });
+    typeFilter.addEventListener('change', function () {
+        const value = typeFilter.value.toLowerCase();
+        Array.from(table.tBodies[0].rows).forEach(row => {
+            if (!value) row.style.display = '';
+            else row.style.display = row.cells[4].textContent.toLowerCase().includes(value) ? '' : 'none';
+        });
+    });
 
-            clearBtn.addEventListener('click', function () {
-                searchInput.value = '';
-                typeFilter.value = '';
-                Array.from(table.tBodies[0].rows).forEach(row => row.style.display = '');
-            });
+    clearBtn.addEventListener('click', function () {
+        searchInput.value = '';
+        typeFilter.value = '';
+        Array.from(table.tBodies[0].rows).forEach(row => row.style.display = '');
+    });
 
-            // Recolecta nombres de salones y device ids existentes desde la tabla
-            function getExistingSets() {
-                const names = new Set();
-                const devices = new Set();
-                const rows = Array.from(table.tBodies[0].rows);
-                rows.forEach(r => {
-                    // nombres pueden venir con <strong>, textContent ya limpia eso
-                    const nameCell = r.cells[1]?.textContent?.trim();
-                    let deviceCell = r.cells[3]?.textContent?.trim();
-                    if (nameCell) {
-                        const n = nameCell.toLowerCase();
-                        if (n) names.add(n);
-                    }
-                    if (deviceCell) {
-                        deviceCell = deviceCell.toLowerCase();
-                        // ignorar marcadores como "no asignado" u otras cadenas vacías
-                        if (deviceCell && deviceCell !== 'no asignado') devices.add(deviceCell);
-                    }
-                });
-                return { names, devices };
+    // Recolecta device ids existentes desde la tabla
+    function getExistingDevices() {
+        const devices = new Set();
+        const rows = Array.from(table.tBodies[0].rows);
+        rows.forEach(r => {
+            let deviceCell = r.cells[3]?.textContent?.trim();
+            if (deviceCell) {
+                deviceCell = deviceCell.toLowerCase();
+                if (deviceCell && deviceCell !== 'no asignado') devices.add(deviceCell);
             }
+        });
+        return devices;
+    }
 
-            // Referencias al formulario y campos del modal
-            const nombreInput = document.getElementById('nombreSalon');
-            const particleInput = document.getElementById('particleID');
-            const guardarBtn = document.getElementById('guardarSalonBtn');
-            const nombreError = document.getElementById('nombre-error');
-            const particleError = document.getElementById('particle-error');
+    // Referencias
+    const particleInput = document.getElementById('particleID');
+    const duplicateParticleModal = new bootstrap.Modal(document.getElementById('duplicateParticleModal'));
+    const duplicateParticleId = document.getElementById('duplicateParticleId');
 
-            // Estado de existencia
-            let existsName = false;
-            let existsDevice = false;
-
-            // Función para actualizar el estado del botón guardar
-            function updateGuardarState() {
-                const ubicacionInput = document.getElementById('ubicacionSalon');
-                const hasEmpty = !nombreInput.value.trim() || !particleInput.value.trim() || !ubicacionInput.value.trim();
-                guardarBtn.disabled = hasEmpty || existsName || existsDevice;
-            }
-
-            // Validación en tiempo real para nombre del salón
-            nombreInput.addEventListener('input', function () {
-                const val = nombreInput.value.trim().toLowerCase();
-                const { names } = getExistingSets();
-                if (val && names.has(val)) {
-                    nombreError.textContent = 'Ya está';
-                    nombreError.style.display = 'block';
-                    existsName = true;
-                } else {
-                    nombreError.textContent = '';
-                    nombreError.style.display = 'none';
-                    existsName = false;
-                }
-                updateGuardarState();
-            });
-
-            // Validación en tiempo real para ID de Particle
-            particleInput.addEventListener('input', function () {
-                const val = particleInput.value.trim().toLowerCase();
-                const { devices } = getExistingSets();
-                if (val && devices.has(val)) {
-                    particleError.textContent = 'Ya está';
-                    particleError.style.display = 'block';
-                    existsDevice = true;
-                } else {
-                    particleError.textContent = '';
-                    particleError.style.display = 'none';
-                    existsDevice = false;
-                }
-                updateGuardarState();
-            });
-
-            // Asegurar estado correcto cuando se abre el modal (recalcular sets y validar valores actuales)
-            const addSalonModalEl = document.getElementById('addSalonModal');
-            addSalonModalEl.addEventListener('show.bs.modal', function () {
-                // limpiar mensajes previos
-                nombreError.textContent = '';
-                nombreError.style.display = 'none';
-                particleError.textContent = '';
-                particleError.style.display = 'none';
-                existsName = false;
-                existsDevice = false;
-
-                // recalcular y validar valores actuales de los inputs (por si quedaron prefijados)
-                const { names, devices } = getExistingSets();
-                const nombreVal = nombreInput.value.trim().toLowerCase();
-                const particleVal = particleInput.value.trim().toLowerCase();
-
-                if (nombreVal && names.has(nombreVal)) {
-                    nombreError.textContent = 'Ya está';
-                    nombreError.style.display = 'block';
-                    existsName = true;
-                }
-                if (particleVal && devices.has(particleVal)) {
-                    particleError.textContent = 'Ya está';
-                    particleError.style.display = 'block';
-                    existsDevice = true;
-                }
-
-                updateGuardarState();
-            });
-
-            // Validación del formulario de agregar salón (con verificación de existencia)
-            const addForm = document.getElementById('addSalonForm');
-            addForm.addEventListener('submit', function (e) {
-                let valid = true;
-                ['nombre', 'ubicacion', 'particle_id'].forEach(field => {
-                    const input = document.getElementById(field === 'particle_id' ? 'particleID' : field + 'Salon');
-                    const errorDiv = document.getElementById(field + '-error');
-                    if (!input.value.trim()) {
-                        errorDiv.textContent = 'Este campo es obligatorio';
-                        errorDiv.style.display = 'block';
-                        valid = false;
-                    } else {
-                        if (errorDiv.textContent === 'Ya está') {
-                            // mantener mensaje de existencia
-                        } else {
-                            errorDiv.textContent = '';
-                            errorDiv.style.display = 'none';
-                        }
+    // Validación en tiempo real para ID de Particle en AGREGAR
+    if (particleInput) {
+        particleInput.addEventListener('blur', function() {
+            const val = this.value.trim();
+            if (val) {
+                checkDeviceId(val, function(exists) {
+                    if (exists) {
+                        showDuplicateModal(val);
                     }
                 });
+            }
+        });
+    }
 
-                // Recalcular por seguridad antes de enviar
-                const { names, devices } = getExistingSets();
-                if (nombreInput.value.trim() && names.has(nombreInput.value.trim().toLowerCase())) {
-                    nombreError.textContent = 'Ya está';
-                    nombreError.style.display = 'block';
-                    existsName = true;
-                    valid = false;
-                }
-                if (particleInput.value.trim() && devices.has(particleInput.value.trim().toLowerCase())) {
-                    particleError.textContent = 'Ya está';
-                    particleError.style.display = 'block';
-                    existsDevice = true;
-                    valid = false;
-                }
+    // Validación en tiempo real para ID de Particle en EDITAR
+    document.querySelectorAll('.particle-input').forEach(input => {
+        input.addEventListener('blur', function() {
+            const val = this.value.trim();
+            if (val) {
+                checkDeviceId(val, function(exists) {
+                    if (exists) {
+                        showDuplicateModal(val);
+                    }
+                });
+            }
+        });
+    });
 
-                if (!valid) {
-                    e.preventDefault();
-                    updateGuardarState();
-                }
-            });
+    // Función para verificar device_id via AJAX
+    function checkDeviceId(deviceId, callback) {
+        fetch('{{ route("check.device.id") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ device_id: deviceId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            callback(data.exists);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+
+    // Función para mostrar el modal de duplicado
+    function showDuplicateModal(deviceId) {
+        duplicateParticleId.textContent = deviceId;
+        duplicateParticleModal.show();
+    }
+
+    // Mostrar modal automáticamente si hay error de duplicado del backend
+    document.addEventListener('DOMContentLoaded', function() {
+        @if(session('show_duplicate_modal'))
+            @if(old('device_id'))
+                showDuplicateModal('{{ old("device_id") }}');
+            @elseif(old('particle_id'))
+                showDuplicateModal('{{ old("particle_id") }}');
+            @endif
+        @endif
+
+        // Reabrir el modal correspondiente si hay errores
+        @if($errors->any())
+            @if($errors->has('device_id') || $errors->has('nombre') || $errors->has('ubicacion'))
+                const addModal = new bootstrap.Modal(document.getElementById('addSalonModal'));
+                addModal.show();
+            @endif
+        @endif
+    });
+
+    // Limpiar formulario cuando se cierra el modal de agregar
+    const addSalonModalEl = document.getElementById('addSalonModal');
+    if (addSalonModalEl) {
+        addSalonModalEl.addEventListener('hidden.bs.modal', function () {
+            document.getElementById('addSalonForm').reset();
+        });
+    }
 </script>
 @endpush
 @endsection
