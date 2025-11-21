@@ -38,8 +38,8 @@
 
 	<!-- Mi JS -->
 	<script src="{{ asset('js/admin/dashboard.js') }}"></script>
-	<script src="{{ asset('js/admin/particle.js') }}"></script>
-
+	<!-- <script src="{{ asset('js/admin/particle.js') }}"></script> -->
+	 <script src="{{ asset('js/admin/carga.js') }}"></script>
 	@stack('js')
 </body>
 </html>

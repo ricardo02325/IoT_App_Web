@@ -9,28 +9,23 @@ class FlashController extends Controller
 {
     public function flash(Request $request)
     {
-        // TU DEVICE ID Y TOKEN
-        $device = "25001d000847313037363132";
-        $token  = "88a24c4118cb7a06a968dcbb29c748133fad78ef";
+        $deviceId = "29002b000b47313037363132";
+        $token = "dce02706ae95dc0dc7d5243f08e79788efda7f42";       
+        $firmwarePath = storage_path('app/public/firmware.bin');
 
-        // Ruta absoluta al firmware dentro de Laravel
-        $path = storage_path("app/public/firmware.bin");
-
-        if (!file_exists($path)) {
-            return response()->json([
-                "error" => "No se encuentra el archivo firmware.bin"
-            ], 404);
+        // Verifica que exista el firmware
+        if (!file_exists($firmwarePath)) {
+            return response()->json(["error" => "Firmware no encontrado"], 404);
         }
 
-        // Petición a API Particle
         $response = Http::attach(
             'file',
-            file_get_contents($path),
+            file_get_contents($firmwarePath),
             'firmware.bin'
-        )->post("https://api.particle.io/v1/devices/$device", [
-            'access_token' => $token,
+        )->post("https://api.particle.io/v1/devices/$deviceId", [
+            'access_token' => $token
         ]);
 
-        return $response->json();
+        return response()->json($response->json());
     }
 }

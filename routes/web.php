@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\LecturaController;
 use App\Http\Controllers\DispositivoParticleController;
 use App\Http\Controllers\SalonController;
+use App\Http\Controllers\ParticleController;
 // use App\Http\Controllers\HomeController; 
 
 /*
@@ -62,3 +63,12 @@ Route::post('/lecturas', [LecturaController::class, 'store'])->name('lecturas.st
 
 
 Route::get('/simular-lecturas', [LecturaController::class, 'simular']);
+
+
+// Vista con el botón
+Route::get('/flash', function () {
+    return view('flash');
+});
+
+// POST que flashea el Photon
+Route::post('/flash', [App\Http\Controllers\FlashController::class, 'flash']);

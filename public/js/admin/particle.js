@@ -7,7 +7,7 @@ const slider = document.getElementById("desired-temp-slider");
 const desiredTempValue = document.getElementById("desired-temp-value");
 
 // --- Configuración Particle ---
-const DEVICE_ID = "29002b000b47313037363132";
+const DEVICE_ID = "25001d000847313037363132";
 const USERNAME = "rgregorio0@ucol.mx";
 const PASSWORD = "Pacofran25?";
 
