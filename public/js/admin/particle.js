@@ -47,15 +47,6 @@ particle.login({ username: USERNAME, password: PASSWORD }).then(
                         // Guardar humedad en Laravel
                         enviarLectura(2, h); // id_sensor = 2
                     }
-
-                    // --- LUMINOSIDAD ---
-                    if (event.name === "Luminosidad") {
-                        const l = parseInt(event.data);
-                        liveLux.textContent = l;
-
-                        // Guardar luminosidad en Laravel
-                        enviarLectura(3, l); // id_sensor = 3
-                    }
                 });
             })
             .catch(err => console.error("❌ Error getEventStream:", err));
@@ -64,27 +55,6 @@ particle.login({ username: USERNAME, password: PASSWORD }).then(
         console.error("❌ No se pudo iniciar sesión en Particle:", err);
     }
 );
-
-// --- Slider para enviar límite de temperatura al dispositivo ---
-slider.addEventListener("input", function () {
-    desiredTempValue.textContent = this.value;
-
-    if (token) {
-        particle.callFunction({
-            deviceId: DEVICE_ID,
-            name: "Valor",
-            argument: this.value.toString(),
-            auth: token
-        }).then(result => {
-            console.log("✅ Nuevo límite enviado:", result.return_value);
-
-            // Actualizar estado del ventilador
-            if (lastTemp !== undefined) {
-                liveFan.textContent = lastTemp >= slider.value ? "Encendido" : "Apagado";
-            }
-        }).catch(err => console.error("❌ Error al enviar límite:", err));
-    }
-});
 
 // --- Función auxiliar para enviar lecturas al backend Laravel ---
 function enviarLectura(id_sensor, valor) {
