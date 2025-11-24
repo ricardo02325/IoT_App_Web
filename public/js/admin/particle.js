@@ -1,73 +1,100 @@
-// --- Elementos del DOM ---
-const liveTemp = document.getElementById("live-temp");
-const liveHum = document.getElementById("live-hum");
-const liveLux = document.getElementById("live-lux");
-const liveFan = document.getElementById("live-fan");
-const slider = document.getElementById("desired-temp-slider");
-const desiredTempValue = document.getElementById("desired-temp-value");
+document.addEventListener("DOMContentLoaded", function () {
+    const slider = document.getElementById("desired-temp-slider");
 
-// --- Configuración Particle ---
-const DEVICE_ID = "25001d000847313037363132";
-const USERNAME = "rgregorio0@ucol.mx";
-const PASSWORD = "Pacofran25?";
+    const container = document.getElementById("mapa-container");
+    const salones = JSON.parse(container.dataset.salones || "[]");
+    const sensores = JSON.parse(container.dataset.sensores || "[]");
+    const dispositivos = JSON.parse(container.dataset.dispositivos || "[]");
 
-let token = null;
-let lastTemp = undefined;
+    // --- Mapeo sensores por salón y tipo ---
+    const sensoresPorSalon = {};
+    sensores.forEach((s) => {
+        if (!sensoresPorSalon[s.id_salon]) sensoresPorSalon[s.id_salon] = {};
+        sensoresPorSalon[s.id_salon][s.tipo] = s.id_sensor;
 
-// --- Inicializar Particle ---
-var particle = new Particle();
+        // Mostrar última lectura en el DOM si existe
+        const spanId = s.tipo === "temperatura" ? `temp-${s.id_salon}` : `hum-${s.id_salon}`;
+        const span = document.getElementById(spanId);
+        if (span && s.ultima_lectura !== null) {
+            span.textContent = s.ultima_lectura;
+        }
+    });
 
-// --- Login a Particle Cloud ---
-particle.login({ username: USERNAME, password: PASSWORD }).then(
-    function (data) {
-        token = data.body.access_token;
-        console.log("✅ Login correcto, token obtenido.");
+    // --- Salones simulados ---
+    const salonesSimulados = salones.filter(s => !["5D", "LIC"].includes(s.ubicacion));
 
-        // Escuchar eventos del dispositivo
-        particle.getEventStream({ deviceId: DEVICE_ID, auth: token })
-            .then(function (stream) {
-                stream.on("event", function (event) {
-
-                    // --- TEMPERATURA ---
-                    if (event.name === "Temp_C") {
-                        const t = parseFloat(event.data);
-                        lastTemp = t;
-                        liveTemp.textContent = t.toFixed(1);
-                        liveFan.textContent = t >= slider.value ? "Encendido" : "Apagado";
-
-                        // Guardar temperatura en Laravel
-                        enviarLectura(1, t); // id_sensor = 1
-                    }
-
-                    // --- HUMEDAD ---
-                    if (event.name === "Humedad") {
-                        const h = parseFloat(event.data);
-                        liveHum.textContent = h.toFixed(1);
-
-                        // Guardar humedad en Laravel
-                        enviarLectura(2, h); // id_sensor = 2
-                    }
-                });
-            })
-            .catch(err => console.error("❌ Error getEventStream:", err));
-    },
-    function (err) {
-        console.error("❌ No se pudo iniciar sesión en Particle:", err);
+    function generarLectura(min, max) {
+        return (Math.random() * (max - min) + min).toFixed(1);
     }
-);
 
-// --- Función auxiliar para enviar lecturas al backend Laravel ---
-function enviarLectura(id_sensor, valor) {
-    fetch("/lecturas", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
-        },
-        body: JSON.stringify({ id_sensor, valor })
-    })
-    .then(res => res.json())
-    .then(data => console.log(`📤 Lectura guardada (sensor ${id_sensor}):`, data))
-    .catch(err => console.error("❌ Error al guardar lectura:", err));
-}
+    function actualizarSpan(id_salon, tipo, valor) {
+        const spanId = tipo === "temperatura" ? `temp-${id_salon}` : `hum-${id_salon}`;
+        const span = document.getElementById(spanId);
+        if (span) span.textContent = valor;
+    }
+
+    function enviarLectura(id_salon, tipo, valor) {
+        const id_sensor = sensoresPorSalon[id_salon]?.[tipo];
+        if (!id_sensor) return;
+
+        fetch("/lecturas", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
+            },
+            body: JSON.stringify({ id_sensor, valor: parseFloat(valor) }),
+        }).catch(err => console.error("❌ Error al guardar lectura:", err));
+    }
+
+    // --- Simulación de salones ---
+    setInterval(() => {
+        salonesSimulados.forEach((salon) => {
+            const temp = generarLectura(20, 28);
+            const hum = generarLectura(30, 60);
+
+            actualizarSpan(salon.id_salon, "temperatura", temp);
+            actualizarSpan(salon.id_salon, "humedad", hum);
+
+            enviarLectura(salon.id_salon, "temperatura", temp);
+            enviarLectura(salon.id_salon, "humedad", hum);
+        });
+    }, 5000);
+
+    // --- Particle Cloud (solo 5D y LIC) ---
+    const USERNAME = "rgregorio0@ucol.mx";
+    const PASSWORD = "Pacofran25?";
+
+    const dispositivosPorSalon = {};
+    dispositivos.forEach(d => dispositivosPorSalon[d.id_salon] = d.device_id);
+
+    let token = null;
+    const particle = new Particle();
+
+    particle.login({ username: USERNAME, password: PASSWORD }).then((data) => {
+        token = data.body.access_token;
+
+        Object.entries(dispositivosPorSalon).forEach(([id_salon, device_id]) => {
+            const salon = salones.find(s => s.id_salon == id_salon);
+            if (!salon || !["5D", "LIC"].includes(salon.ubicacion)) return;
+
+            particle.getEventStream({ deviceId: device_id, auth: token })
+                .then(stream => {
+                    stream.on("event", (event) => {
+                        if (event.name === "Temp_C") {
+                            const t = parseFloat(event.data);
+                            actualizarSpan(salon.id_salon, "temperatura", t.toFixed(1));
+                            enviarLectura(salon.id_salon, "temperatura", t);
+                        }
+                        if (event.name === "Humedad") {
+                            const h = parseFloat(event.data);
+                            actualizarSpan(salon.id_salon, "humedad", h.toFixed(1));
+                            enviarLectura(salon.id_salon, "humedad", h);
+                        }
+                    });
+                })
+                .catch(err => console.error(`❌ Error getEventStream para salón ${id_salon}:`, err));
+        });
+    }).catch(err => console.error("❌ No se pudo iniciar sesión en Particle:", err));
+});

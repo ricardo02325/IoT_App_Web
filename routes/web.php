@@ -41,6 +41,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/inicio', [LecturaController::class, 'index'])->name('inicio');
     Route::get('/salones', [LecturaController::class, 'salones'])->name(name: 'salones');
     Route::post('/salones', [SalonController::class, 'store'])->name('salones.store');
+    // Obtener el salón según el Device ID de Particle
+    Route::get('/particle/salon/{deviceId}', [DispositivoParticleController::class, 'obtenerSalonPorDeviceID'])
+        ->name('particle.obtenerSalon');
     Route::get('/graficas', [LecturaController::class, 'graficas'])->name(name: 'graficas');
     Route::get('/tabla', [LecturaController::class, 'tabla'])->name('tabla');
     Route::put('/salones/{id}', [SalonController::class, 'update'])->name('salones.update');

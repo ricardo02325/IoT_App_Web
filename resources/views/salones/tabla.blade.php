@@ -207,12 +207,18 @@
                             <label for="ubicacionSalon" class="form-label">Ubicación</label>
                             <select id="ubicacionSalon" name="ubicacion" class="form-control" required>
                                 <option value="">Selecciona un área</option>
-                                <option value="5D">Salón 5D - Edificio A</option>
-                                <option value="LSE">Laboratorio LSE</option>
-                                <option value="LEM">Laboratorio LEM</option>
-                                <option value="LIOT">Laboratorio LIOT</option>
-                                <option value="D">Dirección</option>
-                                <option value="LM">Laboratorio LM</option>
+
+                                <!-- Ubicaciones válidas del mapa -->
+                                <option value="LSE">LSE</option>
+                                <option value="LEM">LEM</option>
+                                <option value="LE">LE</option>
+                                <option value="LIC">LIC</option>
+                                <option value="LIOT">LIOT</option>
+                                <option value="LM">LM</option>
+                                <option value="A2">A2</option>
+                                <option value="A3">A3</option>
+                                <option value="5D">5D</option>
+                                <option value="Dirección">Dirección</option>
                             </select>
                             <div id="ubicacion-error" class="text-danger"></div>
                         </div>

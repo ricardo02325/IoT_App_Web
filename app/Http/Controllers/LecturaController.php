@@ -38,15 +38,32 @@ class LecturaController extends Controller
 
     public function salones()
     {
-        // ⚡ Corregido
+        // ⚡ Cargar salones con dispositivos Particle y sensores con la última lectura
         $salones = Salon::with([
             'dispositivoParticle.sensores.lecturas' => function ($query) {
                 $query->latest('fecha_hora')->limit(1);
             }
         ])->get();
 
-        return view('salones.salones', compact('salones'));
+        $sensores = [];
+        foreach ($salones as $salon) {
+            if ($salon->dispositivoParticle) {
+                foreach ($salon->dispositivoParticle->sensores as $sensor) {
+                    $sensores[] = [
+                        'id_sensor' => $sensor->id_sensor,
+                        'tipo' => $sensor->tipo,
+                        'id_salon' => $salon->id_salon,
+                        'ultima_lectura' => $sensor->lecturas->first()?->valor, // puede ser null
+                        'fecha_lectura' => $sensor->lecturas->first()?->fecha_hora
+                    ];
+                }
+            }
+        }
+        $dispositivosParticle = DispositivoParticle::whereIn('id_salon', $salones->pluck('id_salon'))->get();
+
+        return view('salones.salones', compact('salones', 'sensores', 'dispositivosParticle'));
     }
+
 
     public function store(Request $request)
     {
@@ -73,7 +90,7 @@ class LecturaController extends Controller
 
     public function simular()
     {
-        $sensores = Sensor::all();
+        $sensores = Sensor::with('salon')->get();  // Cargar salón del sensor
         $lecturasGuardadas = [];
 
         if ($sensores->isEmpty()) {
@@ -81,17 +98,25 @@ class LecturaController extends Controller
         }
 
         foreach ($sensores as $sensor) {
+
+            // --- NO simular para salones con lecturas reales ---
+            if ($sensor->salon && in_array($sensor->salon->ubicacion, ['5D', 'LIC'])) {
+                continue;  // Saltar este sensor
+            }
+
+            // --- GENERAR VALOR SIMULADO ---
             $valor = match ($sensor->tipo) {
                 'temperatura' => rand(180, 300) / 10,
                 'humedad' => rand(300, 800) / 10,
-                'luminosidad' => rand(0, 1000),
                 default => rand(0, 100),
             };
 
+            // --- GUARDAR LECTURA ---
             $lectura = Lectura::create([
                 'id_sensor' => $sensor->id_sensor,
                 'valor' => $valor,
                 'fecha_hora' => now(),
+                'id_salon' => $sensor->id_salon ?? null
             ]);
 
             $lecturasGuardadas[] = $lectura;

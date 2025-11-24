@@ -1,172 +1,75 @@
 /* Contenedor principal de la sección */
 .body-seccion13 {
+    width: 1200px;      /* tamaño completo de la imagen */
+    height: 900px;      /* evita que se recorte */
     position: relative;
+    margin: auto;
     perspective: 1000px;
-    margin: 0px;
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    flex-wrap: wrap;
     flex-direction: column;
-    font-family: 'Roboto';
+    font-family: 'Roboto', sans-serif;
     font-weight: 300;
 }
 
 /* Imagen del mapa */
-#diagrama13 {    
+#diagrama13 {    
     position: absolute;
-    top: 0px;
-    left: 0px;
-    height: 900px;
-    width: 1200px;
+    top: 0;
+    left: 0;
+    width: 100%;  /* Imagen completa */
+    height: auto;
+    z-index: 1;
 }
 
-/* --- Estilos para los puntos/círculos en el mapa (sin animación) --- */
-
-/* lse */
-.circle13 {
+/* ============================
+   MARCADORES DINÁMICOS
+   ============================ */
+.map-marker {
     position: absolute;
-    width: 20px;
-    height: 20px;
-    top: 160px;
-    left: 280px;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+}
+
+/* Círculo rojo */
+.map-marker .circle {
+    width: 22px;
+    height: 22px;
     background-color: red;
     border-radius: 50%;
-    /* Animación eliminada */
+    border: 3px solid #fff;
+    box-shadow: 0 0 8px rgba(0,0,0,0.4);
+    cursor: pointer;
+    animation: glow 1.8s infinite;
 }
 
-/* lem */
-.circle23 {
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    top: 150px;
-    left: 460px;
-    background-color: red;
-    border-radius: 50%;
+/* Animación del punto */
+@keyframes glow {
+    0% { box-shadow: 0 0 5px rgba(255,0,0,0.5); }
+    50% { box-shadow: 0 0 12px rgba(255,0,0,0.9); }
+    100% { box-shadow: 0 0 5px rgba(255,0,0,0.5); }
 }
 
-/* liot */
-.circle33 {
+/* Tooltip */
+.map-marker .tooltip {
     position: absolute;
-    width: 20px;
-    height: 20px;
-    top: 150px;
-    left: 848px;
-    background-color: red;
-    border-radius: 50%;
-}
-
-/* d */
-.circle43 {
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    top: 8px;
-    left: 600px;
-    background-color: red;
-    border-radius: 50%;
-}
-
-/* lm */
-.circle53 {
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    top: 287px;
-    left: 198px;
-    background-color: red;
-    border-radius: 50%;
-}
-
-/* a1 */
-.circle63 {
-    position: absolute;
-    width: 35px;
-    height: 35px;
-    top: 300px;
-    left: 690px;
-    background-color: red;
-    border-radius: 50%;
-}
-
-/* a2 */
-.circle73 {
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    top: 260px;
-    left: 850px;
-    background-color: red;
-    border-radius: 50%;
-}
-
-/* a3 */
-.circle83 {
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    top: 367px;
-    left: 850px;
-    background-color: red;
-    border-radius: 50%;
-}
-
-/* le */
-.circle93 {
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    top: 150px;
-    left: 587px;
-    background-color: red;
-    border-radius: 50%;
-}
-
-/* lic */
-.circle103 {
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    top: 150px;
-    left: 670px;
-    background-color: red;
-    border-radius: 50%;
-}
-
-/* (La animación blink13 puede eliminarse completamente ya que no se usa) */
-
-/* --- Estilos del tooltip (mensaje emergente) --- */
-.tooltip-text13 {
-    visibility: hidden;
-    width: 200px;
-    background-color: black;
-    color: #fff;
-    text-align: center;
-    padding: 5px;
-    border-radius: 6px;
-
-    /* Posición del tooltip */
-    position: absolute;
-    top: -35px;
+    top: -45px;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 1;
+    background: rgba(0,0,0,0.85);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 14px;
+    white-space: nowrap;
     opacity: 0;
-    transition: opacity 0.3s;
+    pointer-events: none;
+    transition: opacity .3s ease-in-out;
+    z-index: 3;
 }
 
-/* Mostrar el tooltip al pasar el mouse sobre cualquier círculo */
-.circle13:hover .tooltip-text13,
-.circle23:hover .tooltip-text13,
-.circle33:hover .tooltip-text13,
-.circle43:hover .tooltip-text13,
-.circle53:hover .tooltip-text13,
-.circle63:hover .tooltip-text13,
-.circle73:hover .tooltip-text13,
-.circle83:hover .tooltip-text13,
-.circle93:hover .tooltip-text13,
-.circle103:hover .tooltip-text13 {
-    visibility: visible;
+/* Mostrar tooltip al pasar el mouse */
+.map-marker:hover .tooltip {
     opacity: 1;
 }

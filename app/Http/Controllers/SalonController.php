@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Salon;
 use App\Models\DispositivoParticle;
+use App\Models\Sensor;
 
 class SalonController extends Controller
 {
@@ -52,12 +53,25 @@ class SalonController extends Controller
 
         // Crear dispositivo Particle relacionado
         $dispositivo = new DispositivoParticle();
-        $dispositivo->id_salon = $salon->id_salon; // clave primaria del salón
+        $dispositivo->id_salon = $salon->id_salon;
         $dispositivo->device_id = $validated['device_id'];
         $dispositivo->nombre = 'Principal';
         $dispositivo->save();
-        
-        return redirect()->route('tabla')->with('success', 'Salón creado');
+
+        // Crear sensores (Temperatura y Humedad)
+        $sensores = [
+            ['tipo' => 'temperatura', 'tipo' => 'temperatura'],
+            ['tipo' => 'humedad', 'tipo' => 'humedad']
+        ];
+
+        foreach ($sensores as $s) {
+            $sensor = new Sensor();
+            $sensor->id_salon = $salon->id_salon;
+            $sensor->tipo = $s['tipo'];
+            $sensor->save();
+        }
+
+        return redirect()->route('tabla')->with('success', 'Salón creado con sensores');
     }
 
     /**

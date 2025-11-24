@@ -6,59 +6,56 @@
     <link rel="stylesheet" href="{{ asset('css/salones.css') }}">
 @endpush
 
-@push('scripts')
-    <!-- <script src="{{ asset('js/script.js') }}" defer></script> -->
-@endpush
-
 @section('content')
-    <main class="body-seccion13">
-        <img id="diagrama13" src="{{ asset('imgs/FIE.png') }}" alt="Mapa de la Facultad de Ingeniería Eléctrica">
 
-        <!-- Marcadores interactivos -->
-        <div class="circle13">
-            <span class="tooltip-text13">Laboratorio de Sistemas Eléctricos de Potencia (LSE)</span>
-        </div>
+    @php
+        // Coordenadas de los salones en el mapa
+        $posiciones = [
+            'LSE' => ['x' => 200, 'y' => 350],
+            'LEM' => ['x' => 460, 'y' => 150],
+            'LIOT' => ['x' => 848, 'y' => 150],
+            'Dirección' => ['x' => 600, 'y' => 80],
+            'LM' => ['x' => 198, 'y' => 287],
+            '5D' => ['x' => 690, 'y' => 300],
+            'A2' => ['x' => 850, 'y' => 260],
+            'A3' => ['x' => 850, 'y' => 367],
+            'LE' => ['x' => 587, 'y' => 150],
+            'LIC' => ['x' => 670, 'y' => 150],
+        ];
+    @endphp
 
-        <div class="circle23">
-            <span class="tooltip-text13">Laboratorio de Electricidad y Magnetismo (LEM)</span>
-        </div>
+    {{-- Contenedor con data-attributes para JS --}}
+    <div id="mapa-container" data-salones='@json($salones, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP)'
+        data-sensores='@json($sensores, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP)'
+        data-dispositivos='@json($dispositivosParticle, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP)'>
 
-        <div class="circle33">
-            <span class="tooltip-text13">Laboratorio de Internet de las Cosas (LIOT)</span>
-        </div>
+        <main class="body-seccion13">
 
-        <div class="circle43">
-            <span class="tooltip-text13">Dirección (D)</span>
-        </div>
+            <img id="diagrama13" src="{{ asset('imgs/FIE.png') }}" alt="Mapa FIE">
 
-        <div class="circle53">
-            <span class="tooltip-text13">Laboratorio de Mecánica (LM)</span>
-        </div>
+            @foreach($salones as $salon)
+                    @php 
+                        $ubicacion = $salon->ubicacion; 
+                    @endphp
 
-        <!-- Salón 5D - Lecturas en tiempo real desde sensores -->
-        <div class="circle63">
-            <span class="tooltip-text13">
-                Salón 5D - Edificio A
-                <br>
-                <br>Temperatura: <span id="live-temp">--</span> °C
-                <br>Humedad: <span id="live-hum">--</span> %
-            </span>
-        </div>
+                @if(isset($posiciones[$ubicacion]))
+                       <div class="map-marker"
+                             id="marker-{{ $salon->id_salon }}"
+                             style="top: {{ $posiciones[$ubicacion]['y'] }}px; left: {{ $posiciones[$ubicacion]['x'] }}px;">
+                            <div class="circle"></div>
 
-        <div class="circle73">
-            <span class="tooltip-text13">Aulas 2 (A2)</span>
-        </div>
+                            <span class="tooltip">
+                                {{ $salon->nombre }} <br>
+                                ({{ $salon->ubicacion }})
+                                <br><br>
+                                Temp: <span id="temp-{{ $salon->id_salon }}">--</span> °C<br>
+                                Hum: <span id="hum-{{ $salon->id_salon }}">--</span> %
+                                </span>
+                                </div>
+                @endif
+            @endforeach
 
-        <div class="circle83">
-            <span class="tooltip-text13">Aulas 3 (A3)</span>
-        </div>
+        </main>
+    </div>
 
-        <div class="circle93">
-            <span class="tooltip-text13">Laboratorio de Electrónica (LE)</span>
-        </div>
-
-        <div class="circle103">
-            <span class="tooltip-text13">Laboratorio de Instrumentación y Control (LIC)</span>
-        </div>
-    </main>
 @endsection

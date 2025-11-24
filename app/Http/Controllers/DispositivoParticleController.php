@@ -20,4 +20,25 @@ class DispositivoParticleController extends Controller
             'sensores' => $dispositivo->sensores // aquí cada sensor tendrá su id y tipo
         ]);
     }
+    public function obtenerSalonPorDeviceID($deviceId)
+    {
+        $dispositivo = \DB::table('dispositivos_particle')
+            ->where('device_id', $deviceId)
+            ->first();
+
+        if (!$dispositivo) {
+            return response()->json([
+                'error' => 'Dispositivo no encontrado'
+            ], 404);
+        }
+
+        $salon = \DB::table('salones')
+            ->where('id_salon', $dispositivo->id_salon)
+            ->first();
+
+        return response()->json([
+            'id_salon' => $dispositivo->id_salon,
+            'nombre_salon' => $salon?->nombre
+        ]);
+    }
 }
