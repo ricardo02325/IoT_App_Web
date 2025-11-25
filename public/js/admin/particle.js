@@ -2,6 +2,11 @@ document.addEventListener("DOMContentLoaded", function () {
     const slider = document.getElementById("desired-temp-slider");
 
     const container = document.getElementById("mapa-container");
+
+    // --- CORRECCIÓN: Validar que el contenedor exista antes de leer sus datos ---
+    if (!container) return; 
+    // --------------------------------------------------------------------------
+
     const salones = JSON.parse(container.dataset.salones || "[]");
     const sensores = JSON.parse(container.dataset.sensores || "[]");
     const dispositivos = JSON.parse(container.dataset.dispositivos || "[]");

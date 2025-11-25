@@ -6,53 +6,16 @@
     <link rel="stylesheet" href="{{ asset('css/tabla.css') }}">
     <style>
         /* Estilos generales */
-        .no-data {
-            color: #888;
-            font-style: italic;
-        }
-
-        .options-btn {
-            cursor: pointer;
-            color: #0d6efd;
-        }
-
-        .options-btn.text-danger {
-            color: #dc3545;
-        }
-
-        .options-btn.text-danger:hover {
-            color: #bb2d3b;
-        }
-
-        .modal-header.bg-primary {
-            background-color: #0d6efd !important;
-        }
-
-        .modal-header.bg-danger {
-            background-color: #dc3545 !important;
-        }
-
-        .btn-primary {
-            background-color: #0d6efd;
-            border-color: #0d6efd;
-        }
-
-        .btn-primary:hover {
-            background-color: #0b5ed7;
-            border-color: #0a58ca;
-        }
-
-        .form-label {
-            font-weight: 500;
-        }
-
-        #nombre-error,
-        #particle-error,
-        #ubicacion-error {
-            color: red;
-            font-size: 0.875em;
-            display: none;
-        }
+        .no-data { color: #888; font-style: italic; }
+        .options-btn { cursor: pointer; color: #0d6efd; }
+        .options-btn.text-danger { color: #dc3545; }
+        .options-btn.text-danger:hover { color: #bb2d3b; }
+        .modal-header.bg-primary { background-color: #0d6efd !important; }
+        .modal-header.bg-danger { background-color: #dc3545 !important; }
+        .btn-primary { background-color: #0d6efd; border-color: #0d6efd; }
+        .btn-primary:hover { background-color: #0b5ed7; border-color: #0a58ca; }
+        .form-label { font-weight: 500; }
+        #nombre-error, #particle-error, #ubicacion-error { color: red; font-size: 0.875em; display: none; }
     </style>
 @endpush
 
@@ -71,8 +34,7 @@
         </div>
 
         <div class="toolbar mb-3">
-            <input id="tableSearch" class="search-input" type="search"
-                placeholder="Buscar por salón, sensor o ubicación...">
+            <input id="tableSearch" class="search-input" type="search" placeholder="Buscar por salón, sensor o ubicación...">
             <select id="typeFilter" class="filter-select">
                 <option value="">Filtrar por tipo (Todos)</option>
                 <option value="temperatura">Temperatura</option>
@@ -111,18 +73,30 @@
                                 <td>{{ $salon->ubicacion ?? 'Sin ubicación' }}</td>
                                 <td>{{ $dispositivo?->device_id ?? 'No asignado' }}</td>
                                 <td>Temperatura / Humedad</td>
+                                
                                 <td>
-                                    @if ($lecturaTemp)
-                                        Temp: {{ number_format($lecturaTemp->valor, 2) }}°C
-                                    @else
-                                        <span class="no-data">No hay lectura temp</span>
-                                    @endif
-                                    <br>
-                                    @if ($lecturaHum)
-                                        Hum: {{ number_format($lecturaHum->valor, 2) }}%
-                                    @else
-                                        <span class="no-data">No hay lectura hum</span>
-                                    @endif
+                                    <div>
+                                        <i class="bi bi-thermometer-half text-danger"></i> 
+                                        <strong>Temp:</strong>
+                                        <span id="temp-{{ $salon->id_salon }}">
+                                            @if ($lecturaTemp) 
+                                                {{ number_format($lecturaTemp->valor, 2) }}
+                                            @else 
+                                                <span class="no-data">--</span>
+                                            @endif
+                                        </span>°C
+                                    </div>
+                                    <div>
+                                        <i class="bi bi-droplet-fill text-primary"></i> 
+                                        <strong>Hum:</strong>
+                                        <span id="hum-{{ $salon->id_salon }}">
+                                            @if ($lecturaHum) 
+                                                {{ number_format($lecturaHum->valor, 2) }}
+                                            @else 
+                                                <span class="no-data">--</span>
+                                            @endif
+                                        </span>%
+                                    </div>
                                 </td>
                                 <td>
                                     @if ($lecturaTemp || $lecturaHum)
@@ -143,7 +117,6 @@
                                 </td>
                             </tr>
 
-                            <!-- Modal editar salón + dispositivo -->
                             <div class="modal fade" id="editSalonModal{{ $salon->id }}" tabindex="-1"
                                 aria-labelledby="editSalonLabel{{ $salon->id }}" aria-hidden="true">
                                 <div class="modal-dialog">
@@ -153,41 +126,31 @@
                                         <div class="modal-content">
                                             <div class="modal-header bg-primary text-white">
                                                 <h5 class="modal-title">✏️ Editar {{ $salon->nombre }}</h5>
-                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                                                    aria-label="Cerrar"></button>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                                             </div>
                                             <div class="modal-body">
                                                 <div class="mb-3">
                                                     <label class="form-label">Nombre del salón</label>
-                                                    <input type="text" name="nombre" class="form-control"
-                                                        value="{{ $salon->nombre }}" required>
+                                                    <input type="text" name="nombre" class="form-control" value="{{ $salon->nombre }}" required>
                                                 </div>
                                                 <div class="mb-3">
                                                     <label class="form-label">Ubicación</label>
                                                     <select name="ubicacion" class="form-control" required>
-                                                        <option value="5D" {{ $salon->ubicacion == '5D' ? 'selected' : '' }}>Salón
-                                                            5D - Edificio A</option>
-                                                        <option value="LSE" {{ $salon->ubicacion == 'LSE' ? 'selected' : '' }}>
-                                                            Laboratorio LSE</option>
-                                                        <option value="LEM" {{ $salon->ubicacion == 'LEM' ? 'selected' : '' }}>
-                                                            Laboratorio LEM</option>
-                                                        <option value="A1" {{ $salon->ubicacion == 'A1' ? 'selected' : '' }}>
-                                                            A1</option>
-                                                        <option value="D" {{ $salon->ubicacion == 'D' ? 'selected' : '' }}>
-                                                            Dirección</option>
-                                                        <option value="LM" {{ $salon->ubicacion == 'LM' ? 'selected' : '' }}>
-                                                            Laboratorio LM</option>
+                                                        <option value="5D" {{ $salon->ubicacion == '5D' ? 'selected' : '' }}>Salón 5D - Edificio A</option>
+                                                        <option value="LSE" {{ $salon->ubicacion == 'LSE' ? 'selected' : '' }}>Laboratorio LSE</option>
+                                                        <option value="LEM" {{ $salon->ubicacion == 'LEM' ? 'selected' : '' }}>Laboratorio LEM</option>
+                                                        <option value="A1" {{ $salon->ubicacion == 'A1' ? 'selected' : '' }}>A1</option>
+                                                        <option value="D" {{ $salon->ubicacion == 'D' ? 'selected' : '' }}>Dirección</option>
+                                                        <option value="LM" {{ $salon->ubicacion == 'LM' ? 'selected' : '' }}>Laboratorio LM</option>
                                                     </select>
                                                 </div>
                                                 <div class="mb-3">
                                                     <label class="form-label">ID del dispositivo Particle</label>
-                                                    <input type="text" name="particle_id" class="form-control"
-                                                        value="{{ $dispositivo?->device_id ?? '' }}">
+                                                    <input type="text" name="particle_id" class="form-control" value="{{ $dispositivo?->device_id ?? '' }}">
                                                 </div>
                                             </div>
                                             <div class="modal-footer">
-                                                <button type="button" class="btn btn-light"
-                                                    data-bs-dismiss="modal">Cancelar</button>
+                                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
                                                 <button type="submit" class="btn btn-primary">Guardar cambios</button>
                                             </div>
                                         </div>
@@ -195,15 +158,13 @@
                                 </div>
                             </div>
 
-                            <!-- Modal de confirmación para eliminar salón -->
                             <div class="modal fade" id="deleteSalonModal{{ $salon->id }}" tabindex="-1"
                                 aria-labelledby="deleteSalonLabel{{ $salon->id }}" aria-hidden="true">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
                                         <div class="modal-header bg-danger text-white">
                                             <h5 class="modal-title">⚠️ Eliminar {{ $salon->nombre }}</h5>
-                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                                                aria-label="Cerrar"></button>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                                         </div>
                                         <div class="modal-body">
                                             <p>¿Estás seguro de que deseas eliminar el salón <strong>{{ $salon->nombre }}</strong>?</p>
@@ -227,17 +188,14 @@
         </div>
     </div>
 
-    <!-- Modal agregar nuevo salón -->
     <div class="modal fade" id="addSalonModal" tabindex="-1" aria-labelledby="addSalonLabel" aria-hidden="true">
         <div class="modal-dialog">
-            <!-- Usamos route() de Laravel para enviar el formulario -->
             <form id="addSalonForm" method="POST" action="{{ route('salones.store') }}">
-                @csrf <!-- Token CSRF necesario -->
+                @csrf 
                 <div class="modal-content">
                     <div class="modal-header bg-primary text-white">
                         <h5 class="modal-title" id="addSalonLabel">➕ Agregar nuevo salón</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                            aria-label="Cerrar"></button>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                     </div>
                     <div class="modal-body">
                         <div class="mb-3">
@@ -249,13 +207,10 @@
                             <label for="ubicacionSalon" class="form-label">Ubicación</label>
                             <select id="ubicacionSalon" name="ubicacion" class="form-control" required>
                                 <option value="">Selecciona un área</option>
-
-                                <!-- Ubicaciones válidas del mapa -->
                                 <option value="LSE">LSE</option>
                                 <option value="LEM">LEM</option>
                                 <option value="LE">LE</option>
                                 <option value="LIC">LIC</option>
-                          <!-- <option value="LIOT">LIOT</option> -->
                                 <option value="LM">LM</option>
                                 <option value="A1">A1</option>
                                 <option value="A2">A2</option>
@@ -281,6 +236,12 @@
         <div id="status"></div>
     </div>
 
+    <div id="mapa-container" 
+        style="display: none;"
+        data-salones='{{ json_encode($salones) }}'
+        data-sensores='{{ json_encode($sensores ?? []) }}'
+        data-dispositivos='{{ json_encode($dispositivos ?? []) }}'>
+    </div>
     @push('scripts')
         <script>
             // Búsqueda y filtro
@@ -316,7 +277,6 @@
                 const devices = new Set();
                 const rows = Array.from(table.tBodies[0].rows);
                 rows.forEach(r => {
-                    // nombres pueden venir con <strong>, textContent ya limpia eso
                     const nameCell = r.cells[1]?.textContent?.trim();
                     let deviceCell = r.cells[3]?.textContent?.trim();
                     if (nameCell) {
@@ -325,7 +285,6 @@
                     }
                     if (deviceCell) {
                         deviceCell = deviceCell.toLowerCase();
-                        // ignorar marcadores como "no asignado" u otras cadenas vacías
                         if (deviceCell && deviceCell !== 'no asignado') devices.add(deviceCell);
                     }
                 });
@@ -339,18 +298,15 @@
             const nombreError = document.getElementById('nombre-error');
             const particleError = document.getElementById('particle-error');
 
-            // Estado de existencia
             let existsName = false;
             let existsDevice = false;
 
-            // Función para actualizar el estado del botón guardar
             function updateGuardarState() {
                 const ubicacionInput = document.getElementById('ubicacionSalon');
                 const hasEmpty = !nombreInput.value.trim() || !particleInput.value.trim() || !ubicacionInput.value.trim();
                 guardarBtn.disabled = hasEmpty || existsName || existsDevice;
             }
 
-            // Validación en tiempo real para nombre del salón
             nombreInput.addEventListener('input', function () {
                 const val = nombreInput.value.trim().toLowerCase();
                 const { names } = getExistingSets();
@@ -366,7 +322,6 @@
                 updateGuardarState();
             });
 
-            // Validación en tiempo real para ID de Particle
             particleInput.addEventListener('input', function () {
                 const val = particleInput.value.trim().toLowerCase();
                 const { devices } = getExistingSets();
@@ -382,10 +337,8 @@
                 updateGuardarState();
             });
 
-            // Asegurar estado correcto cuando se abre el modal (recalcular sets y validar valores actuales)
             const addSalonModalEl = document.getElementById('addSalonModal');
             addSalonModalEl.addEventListener('show.bs.modal', function () {
-                // limpiar mensajes previos
                 nombreError.textContent = '';
                 nombreError.style.display = 'none';
                 particleError.textContent = '';
@@ -393,7 +346,6 @@
                 existsName = false;
                 existsDevice = false;
 
-                // recalcular y validar valores actuales de los inputs (por si quedaron prefijados)
                 const { names, devices } = getExistingSets();
                 const nombreVal = nombreInput.value.trim().toLowerCase();
                 const particleVal = particleInput.value.trim().toLowerCase();
@@ -412,7 +364,6 @@
                 updateGuardarState();
             });
 
-            // Validación del formulario de agregar salón (con verificación de existencia)
             const addForm = document.getElementById('addSalonForm');
             addForm.addEventListener('submit', function (e) {
                 let valid = true;
@@ -425,7 +376,6 @@
                         valid = false;
                     } else {
                         if (errorDiv.textContent === 'Ya está') {
-                            // mantener mensaje de existencia
                         } else {
                             errorDiv.textContent = '';
                             errorDiv.style.display = 'none';
@@ -433,7 +383,6 @@
                     }
                 });
 
-                // Recalcular por seguridad antes de enviar
                 const { names, devices } = getExistingSets();
                 if (nombreInput.value.trim() && names.has(nombreInput.value.trim().toLowerCase())) {
                     nombreError.textContent = 'Ya está';

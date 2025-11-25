@@ -40,7 +40,8 @@ class SalonController extends Controller
     {
         // Validación
         $validated = $request->validate([
-            'nombre' => 'required|string|max:255',
+            // CORRECCIÓN: Agregamos 'unique:salones,nombre' para evitar duplicados
+            'nombre' => 'required|string|max:255|unique:salones,nombre',
             'ubicacion' => 'required|string|max:50',
             'device_id' => 'required|string|max:255',
         ]);
@@ -49,19 +50,20 @@ class SalonController extends Controller
         $salon = new Salon();
         $salon->nombre = $validated['nombre'];
         $salon->ubicacion = $validated['ubicacion'];
-        $salon->save();
+        // $salon->capacidad = 30; // Descomenta si tu BD requiere este campo
+        $salon->save(); 
 
         // Crear dispositivo Particle relacionado
         $dispositivo = new DispositivoParticle();
-        $dispositivo->id_salon = $salon->id_salon;
+        $dispositivo->id_salon = $salon->id_salon; // Usamos el ID correcto
         $dispositivo->device_id = $validated['device_id'];
         $dispositivo->nombre = 'Principal';
         $dispositivo->save();
 
-        // Crear sensores (Temperatura y Humedad)
+        // Array de sensores limpio
         $sensores = [
-            ['tipo' => 'temperatura', 'tipo' => 'temperatura'],
-            ['tipo' => 'humedad', 'tipo' => 'humedad']
+            ['tipo' => 'temperatura'],
+            ['tipo' => 'humedad']
         ];
 
         foreach ($sensores as $s) {
@@ -92,7 +94,7 @@ class SalonController extends Controller
         }
 
         // Asignar el nuevo
-        $dispositivo->update(['salon_id' => $salon->id]);
+        $dispositivo->update(['salon_id' => $salon->id_salon]); // Aseguramos usar id_salon
 
         return back()->with('success', 'Dispositivo reasignado correctamente al salón.');
     }
@@ -101,15 +103,16 @@ class SalonController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'nombre' => 'required|string|max:255',
+            // CORRECCIÓN: Validamos unique pero ignoramos el ID actual para poder editar sin errores
+            'nombre' => 'required|string|max:255|unique:salones,nombre,' . $id . ',id_salon',
             'ubicacion' => 'required|string|max:255',
             'particle_id' => 'nullable|string|max:255'
         ]);
 
         $salon = Salon::findOrFail($id);
 
-        // Buscar el dispositivo asociado (si existe)
-        $dispositivo = $salon->dispositivos()->first();
+        // Buscar el dispositivo asociado (si existe) a través de la relación 1:1
+        $dispositivo = $salon->dispositivoParticle; 
 
         // Actualizar el salón
         $salon->update([
@@ -120,6 +123,13 @@ class SalonController extends Controller
         // Si hay dispositivo, actualizamos su device_id
         if ($dispositivo) {
             $dispositivo->update(['device_id' => $request->particle_id]);
+        } elseif ($request->particle_id) {
+            // Si no tenía dispositivo pero se le asignó uno nuevo al editar
+            $nuevoDispositivo = new DispositivoParticle();
+            $nuevoDispositivo->id_salon = $salon->id_salon;
+            $nuevoDispositivo->device_id = $request->particle_id;
+            $nuevoDispositivo->nombre = 'Principal';
+            $nuevoDispositivo->save();
         }
 
         return redirect()->route('tabla')->with('success', 'Salón actualizado correctamente.');
