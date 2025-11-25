@@ -171,8 +171,8 @@
                                                             Laboratorio LSE</option>
                                                         <option value="LEM" {{ $salon->ubicacion == 'LEM' ? 'selected' : '' }}>
                                                             Laboratorio LEM</option>
-                                                        <option value="LIOT" {{ $salon->ubicacion == 'LIOT' ? 'selected' : '' }}>
-                                                            Laboratorio LIOT</option>
+                                                        <option value="A1" {{ $salon->ubicacion == 'A1' ? 'selected' : '' }}>
+                                                            A1</option>
                                                         <option value="D" {{ $salon->ubicacion == 'D' ? 'selected' : '' }}>
                                                             Dirección</option>
                                                         <option value="LM" {{ $salon->ubicacion == 'LM' ? 'selected' : '' }}>
@@ -255,8 +255,9 @@
                                 <option value="LEM">LEM</option>
                                 <option value="LE">LE</option>
                                 <option value="LIC">LIC</option>
-                                <option value="LIOT">LIOT</option>
+                          <!-- <option value="LIOT">LIOT</option> -->
                                 <option value="LM">LM</option>
+                                <option value="A1">A1</option>
                                 <option value="A2">A2</option>
                                 <option value="A3">A3</option>
                                 <option value="5D">5D</option>
