@@ -16,8 +16,20 @@
             color: #0d6efd;
         }
 
+        .options-btn.text-danger {
+            color: #dc3545;
+        }
+
+        .options-btn.text-danger:hover {
+            color: #bb2d3b;
+        }
+
         .modal-header.bg-primary {
             background-color: #0d6efd !important;
+        }
+
+        .modal-header.bg-danger {
+            background-color: #dc3545 !important;
         }
 
         .btn-primary {
@@ -124,6 +136,10 @@
                                         data-bs-target="#editSalonModal{{ $salon->id }}" title="Editar salón">
                                         <i class="bi bi-pencil-square"></i>
                                     </span>
+                                    <span class="options-btn text-danger ms-2" data-bs-toggle="modal"
+                                        data-bs-target="#deleteSalonModal{{ $salon->id }}" title="Eliminar salón">
+                                        <i class="bi bi-trash"></i>
+                                    </span>
                                 </td>
                             </tr>
 
@@ -176,6 +192,32 @@
                                             </div>
                                         </div>
                                     </form>
+                                </div>
+                            </div>
+
+                            <!-- Modal de confirmación para eliminar salón -->
+                            <div class="modal fade" id="deleteSalonModal{{ $salon->id }}" tabindex="-1"
+                                aria-labelledby="deleteSalonLabel{{ $salon->id }}" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header bg-danger text-white">
+                                            <h5 class="modal-title">⚠️ Eliminar {{ $salon->nombre }}</h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                                aria-label="Cerrar"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>¿Estás seguro de que deseas eliminar el salón <strong>{{ $salon->nombre }}</strong>?</p>
+                                            <p class="text-muted">Esta acción no se puede deshacer.</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                                            <form action="{{ route('salones.destroy', $salon->id_salon ?? $salon->id) }}" method="POST">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger">Eliminar</button>
+                                            </form>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         @endforeach

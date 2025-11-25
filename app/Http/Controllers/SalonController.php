@@ -124,4 +124,32 @@ class SalonController extends Controller
 
         return redirect()->route('tabla')->with('success', 'Salón actualizado correctamente.');
     }
+
+    /**
+     * Eliminar un salón y sus relaciones
+     */
+    public function destroy($id)
+    {
+        try {
+            $salon = Salon::findOrFail($id);
+
+            // Eliminar en cascada: primero los sensores y lecturas, luego el dispositivo, finalmente el salón
+            if ($salon->dispositivoParticle) {
+                // Eliminar sensores y sus lecturas
+                foreach ($salon->dispositivoParticle->sensores as $sensor) {
+                    $sensor->lecturas()->delete(); // Eliminar lecturas del sensor
+                    $sensor->delete(); // Eliminar sensor
+                }
+                // Eliminar dispositivo Particle
+                $salon->dispositivoParticle->delete();
+            }
+
+            // Eliminar el salón
+            $salon->delete();
+
+            return redirect()->route('tabla')->with('success', 'Salón eliminado correctamente.');
+        } catch (\Exception $e) {
+            return redirect()->route('tabla')->with('error', 'Error al eliminar el salón: ' . $e->getMessage());
+        }
+    }
 }
